@@ -2373,9 +2373,19 @@ select:disabled {
 
             <!-- Statistiques -->
             <section class="tab-panel" id="panel-stats">
-                <div class="chart-card">
-                    <h3><i class="fas fa-chart-line"></i> Évolution des performances</h3>
+                <!-- KPIs réels -->
+                <div class="charts-row" id="statsKpiRow" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;"></div>
+
+                <!-- Courbe : moyenne par matière (toutes filières) -->
+                <div class="chart-card" style="margin-bottom:24px;">
+                    <h3><i class="fas fa-chart-line"></i> Moyenne générale par matière</h3>
                     <div class="chart-container" style="height: 350px;"><canvas id="advPerformanceChart"></canvas></div>
+                </div>
+
+                <!-- Courbe : moyenne par niveau -->
+                <div class="chart-card">
+                    <h3><i class="fas fa-layer-group"></i> Moyenne générale par niveau (filière)</h3>
+                    <div class="chart-container" style="height: 320px;"><canvas id="advNiveauChart"></canvas></div>
                 </div>
             </section>
 
@@ -3797,12 +3807,178 @@ showToast(errorData || "Erreur suppression","error");
 
 
         async function loadAdvancedStats() {
-            if (state.charts.adv) state.charts.adv.destroy();
-            state.charts.adv = new Chart(document.getElementById('advPerformanceChart'), {
-                type: 'line',
-                data: { labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai'], datasets: [{ label: 'Moyenne Générale', data: [11.5, 12.1, 10.8, 13.2, 12.9], borderColor: '#1a5276', backgroundColor: 'rgba(26,82,118,0.1)', fill: true, tension: 0.3 }] },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
+            // Détruire les anciens graphiques
+            if (state.charts.adv) { state.charts.adv.destroy(); state.charts.adv = null; }
+            if (state.charts.advNiveau) { state.charts.advNiveau.destroy(); state.charts.advNiveau = null; }
+
+            // Afficher un indicateur de chargement
+            const kpiRow = document.getElementById('statsKpiRow');
+            if (kpiRow) kpiRow.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#888;padding:12px;"><div class="spinner" style="margin:0 auto 8px;"></div>Chargement des statistiques réelles…</div>`;
+
+            try {
+                // Récupérer les relevés réels et les matières
+                const [relevesRes, matieresRes] = await Promise.all([
+                    fetchAPI('/admin/releves').catch(() => ({ ok: false })),
+                    fetchAPI('/admin/matieres').catch(() => ({ ok: false }))
+                ]);
+
+                const releves   = relevesRes.ok   ? await relevesRes.json()   : [];
+                const matieres  = matieresRes.ok   ? await matieresRes.json()  : [];
+
+                // ── Construire index matiere_id -> nom ──────────────────────
+                const matiereMap = {};
+                matieres.forEach(m => { matiereMap[m.id] = m.nom; });
+
+                // ── Aplatir toutes les notes validées ───────────────────────
+                const allNotes = [];
+                releves.forEach(r => {
+                    (r.notes || []).forEach(n => {
+                        if (n.note_valeur !== null && n.note_valeur !== undefined) {
+                            allNotes.push({
+                                matiere_id: n.matiere_id,
+                                matiere_nom: matiereMap[n.matiere_id] || `Matière #${n.matiere_id}`,
+                                note: parseFloat(n.note_valeur),
+                                niveau: r.niveau || 'Inconnu'
+                            });
+                        }
+                    });
+                });
+
+                // ── KPIs globaux ────────────────────────────────────────────
+                const totalNotes = allNotes.length;
+                const moyenneGlobale = totalNotes > 0
+                    ? (allNotes.reduce((s, n) => s + n.note, 0) / totalNotes).toFixed(2)
+                    : '—';
+                const tauxReussite = totalNotes > 0
+                    ? ((allNotes.filter(n => n.note >= 10).length / totalNotes) * 100).toFixed(1)
+                    : '—';
+                const nbEtudiants = releves.length;
+                const nbMatieres  = Object.keys(matiereMap).length;
+
+                if (kpiRow) {
+                    kpiRow.innerHTML = [
+                        { icon: 'fa-star', label: 'Moyenne globale', value: moyenneGlobale !== '—' ? `${moyenneGlobale} / 20` : '—', color: '#1a5276' },
+                        { icon: 'fa-check-circle', label: 'Taux de réussite', value: tauxReussite !== '—' ? `${tauxReussite} %` : '—', color: '#27ae60' },
+                        { icon: 'fa-users', label: 'Étudiants avec notes', value: nbEtudiants, color: '#2e86c1' },
+                        { icon: 'fa-book', label: 'Notes saisies', value: totalNotes, color: '#f39c12' },
+                    ].map(k => `
+                        <div style="background:#fff;border-radius:10px;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.07);display:flex;align-items:center;gap:14px;">
+                            <div style="width:42px;height:42px;background:${k.color}18;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="fas ${k.icon}" style="color:${k.color};font-size:1.1rem;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:1.35rem;font-weight:700;color:${k.color};">${k.value}</div>
+                                <div style="font-size:0.78rem;color:#888;">${k.label}</div>
+                            </div>
+                        </div>`).join('');
+                }
+
+                // ── Graphique 1 : Moyenne par matière ──────────────────────
+                // Regrouper notes par matière et calculer la moyenne
+                const notesByMatiere = {};
+                allNotes.forEach(n => {
+                    if (!notesByMatiere[n.matiere_nom]) notesByMatiere[n.matiere_nom] = [];
+                    notesByMatiere[n.matiere_nom].push(n.note);
+                });
+                // Trier par moyenne décroissante, prendre max 12 matières
+                const matiereEntries = Object.entries(notesByMatiere)
+                    .map(([nom, notes]) => ({ nom, moy: parseFloat((notes.reduce((s,v) => s+v,0)/notes.length).toFixed(2)), count: notes.length }))
+                    .sort((a, b) => b.moy - a.moy)
+                    .slice(0, 12);
+
+                const labelsM = matiereEntries.map(e => e.nom.length > 20 ? e.nom.slice(0, 18) + '…' : e.nom);
+                const dataM   = matiereEntries.map(e => e.moy);
+                // Couleur selon niveau de réussite
+                const colorsM = dataM.map(v => v >= 14 ? '#27ae60' : v >= 10 ? '#2e86c1' : '#e74c3c');
+
+                if (state.charts.adv) state.charts.adv.destroy();
+                state.charts.adv = new Chart(document.getElementById('advPerformanceChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: labelsM,
+                        datasets: [{
+                            label: 'Moyenne / 20',
+                            data: dataM,
+                            backgroundColor: colorsM,
+                            borderRadius: 5,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: (ctx) => {
+                                        const e = matiereEntries[ctx.dataIndex];
+                                        return `${e.count} note${e.count > 1 ? 's' : ''} saisie${e.count > 1 ? 's' : ''}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: { min: 0, max: 20, title: { display: true, text: 'Moyenne / 20' } },
+                            x: { ticks: { maxRotation: 35, minRotation: 20 } }
+                        }
+                    }
+                });
+
+                // ── Graphique 2 : Moyenne par niveau ───────────────────────
+                const notesByNiveau = {};
+                allNotes.forEach(n => {
+                    if (!notesByNiveau[n.niveau]) notesByNiveau[n.niveau] = [];
+                    notesByNiveau[n.niveau].push(n.note);
+                });
+                const niveauEntries = Object.entries(notesByNiveau)
+                    .map(([niv, notes]) => ({ niv, moy: parseFloat((notes.reduce((s,v) => s+v,0)/notes.length).toFixed(2)), count: notes.length }))
+                    .sort((a, b) => a.niv.localeCompare(b.niv));
+
+                const labelsN = niveauEntries.map(e => e.niv);
+                const dataN   = niveauEntries.map(e => e.moy);
+                const colorsN = ['#1a5276','#2e86c1','#27ae60','#f39c12','#8e44ad','#e74c3c'];
+
+                if (state.charts.advNiveau) state.charts.advNiveau.destroy();
+                state.charts.advNiveau = new Chart(document.getElementById('advNiveauChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: labelsN,
+                        datasets: [{
+                            label: 'Moyenne par niveau / 20',
+                            data: dataN,
+                            backgroundColor: labelsN.map((_, i) => colorsN[i % colorsN.length]),
+                            borderRadius: 6,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: (ctx) => {
+                                        const e = niveauEntries[ctx.dataIndex];
+                                        return `${e.count} note${e.count > 1 ? 's' : ''} saisie${e.count > 1 ? 's' : ''}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: { min: 0, max: 20, title: { display: true, text: 'Moyenne / 20' } }
+                        }
+                    }
+                });
+
+                if (totalNotes === 0) {
+                    showToast("Aucune note saisie dans la base pour le moment.", "info");
+                }
+
+            } catch (err) {
+                console.error('loadAdvancedStats error:', err);
+                showToast("Erreur lors du chargement des statistiques", "error");
+                if (kpiRow) kpiRow.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#c0392b;padding:12px;">Impossible de charger les statistiques.</div>`;
+            }
         }
 
         function openModalContainer(title, fieldsHTML, onSubmit) {
