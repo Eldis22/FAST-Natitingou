@@ -2388,6 +2388,7 @@
                     `-- <span style="font-size:0.8rem;">/20</span>`;
                 document.getElementById('overview-credits').innerText =
                     `${creditsValides} crédits validés sur ${creditsTotal}`;
+                renderPerformanceChart();
                 return;
             }
 
@@ -2405,7 +2406,7 @@
                 `${globalAverage.toFixed(2)} <span style="font-size:0.8rem;">/20</span>`;
             document.getElementById('overview-credits').innerText =
                 `${creditsValides} crédits validés sur ${creditsTotal}`;
-            renderPerformanceChart(globalAverage);
+            renderPerformanceChart();
         }
 
         async function checkReleveValidationStatus() {
@@ -2494,20 +2495,50 @@
     });
 }
 
-        function renderPerformanceChart(studentAvg) {
+        function renderPerformanceChart() {
             if (state.charts.perf) state.charts.perf.destroy();
             const ctx = document.getElementById('perfChart');
             if (!ctx) return;
+
+            // Calculer la moyenne pondérée réelle par semestre
+            const semestres = [...new Set(state.notes.map(n => n.semestre))].sort();
+
+            const moyennesReelles = semestres.map(sem => {
+                const notesSem = state.notes.filter(n => n.semestre === sem);
+                let points = 0, credits = 0;
+                notesSem.forEach(n => {
+                    const note = parseFloat(n.note_valeur);
+                    const mat  = state.matieres.find(m => m.id === n.matiere_id);
+                    const cr   = mat ? (mat.credits || 4) : 4;
+                    if (!isNaN(note)) { points += note * cr; credits += cr; }
+                });
+                return credits > 0 ? parseFloat((points / credits).toFixed(2)) : null;
+            });
+
+            const labels = semestres.map(s => `Semestre ${s}`);
+
             state.charts.perf = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Semestre 1', 'Semestre 2'],
+                    labels,
                     datasets: [
-                        { label: 'Ma Moyenne', data: [studentAvg - 0.5, studentAvg + 0.2], borderColor: '#2e86c1', backgroundColor: 'rgba(46, 134, 193, 0.1)', tension: 0.2, fill: true },
-                        { label: 'Moyenne Promo', data: [11.2, 11.8], borderColor: '#bdc3c7', borderDash: [5, 5], tension: 0, fill: false }
+                        {
+                            label: 'Ma Moyenne',
+                            data: moyennesReelles,
+                            borderColor: '#2e86c1',
+                            backgroundColor: 'rgba(46, 134, 193, 0.1)',
+                            tension: 0.2,
+                            fill: true,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 20 } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: 20, title: { display: true, text: '/ 20' } } }
+                }
             });
         }
 
