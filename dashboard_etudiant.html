@@ -2425,7 +2425,7 @@
 
                 if (data.valide) {
                     btn.disabled = false;
-                    statusText.innerHTML = `<span style="color:var(--success-color); font-weight:600;"><i class="fas fa-check-circle"></i> Relevé complet — validé &amp; signé par la direction.</span>`;
+                    statusText.innerHTML = `<span style="color:var(--success-color); font-weight:600;"><i class="fas fa-check-circle"></i> Relevé complet — validé &amp; signé par l'administration.</span>`;
                 } else if (data.releve_complet) {
                     btn.disabled = true;
                     statusText.innerHTML = `<span style="color:var(--warning-color); font-weight:600;"><i class="fas fa-hourglass-half"></i> Notes complètes — en attente de validation admin (${data.nb_notes_validees}/${data.nb_matieres_total} validées).</span>`;
