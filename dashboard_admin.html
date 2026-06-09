@@ -2378,13 +2378,13 @@ select:disabled {
 
                 <!-- Courbe : moyenne par matière (toutes filières) -->
                 <div class="chart-card" style="margin-bottom:24px;">
-                    <h3><i class="fas fa-chart-line"></i> Moyenne générale par matière</h3>
+                    <h3><i class="fas fa-chart-line"></i> Moyenne réelle par matière</h3>
                     <div class="chart-container" style="height: 350px;"><canvas id="advPerformanceChart"></canvas></div>
                 </div>
 
                 <!-- Courbe : moyenne par niveau -->
                 <div class="chart-card">
-                    <h3><i class="fas fa-layer-group"></i> Moyenne générale par niveau (filière)</h3>
+                    <h3><i class="fas fa-layer-group"></i> Moyenne réelle par niveau (filière)</h3>
                     <div class="chart-container" style="height: 320px;"><canvas id="advNiveauChart"></canvas></div>
                 </div>
             </section>
@@ -4030,7 +4030,7 @@ window.openUserModal = (id = null) => {
             <!-- ÉTAPE 1 : Filières & années -->
             <label style="font-weight:600;font-size:13px;color:#374151;">
                 <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#3b82f6;color:#fff;border-radius:50%;font-size:11px;font-weight:700;margin-right:6px;">1</span>
-                Filières et années gardées
+                Filière(s) et année(s) gardée(s)
             </label>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px;" id="filieresCheckboxList">
                 ${['MI1','MI2','MI3','PC1','PC2','PC3'].map(f => `
@@ -4044,7 +4044,7 @@ window.openUserModal = (id = null) => {
             <!-- ÉTAPE 2 : Matières (filtrées selon filières cochées) -->
             <label style="font-weight:600;font-size:13px;color:#374151;">
                 <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#3b82f6;color:#fff;border-radius:50%;font-size:11px;font-weight:700;margin-right:6px;">2</span>
-                Matières enseignées
+                Matière(s) enseignée(s)
             </label>
             <div id="matieresSelectorContainer" style="margin-top:6px;position:relative;">
                 <!-- Tags des matières sélectionnées + champ déclencheur -->
