@@ -1635,8 +1635,8 @@
                             <span class="stat-label">Prochain Cours</span>
                             <i class="fas fa-clock"></i>
                         </div>
-                        <div class="stat-value" id="overview-next-course" style="font-size: 1.1rem; padding: 8px 0;">Algorithmique Python</div>
-                        <div class="stat-label">À 10:30 — Labo Info 1</div>
+                        <div class="stat-value" id="overview-next-course" style="font-size: 1.1rem; padding: 8px 0;">Chargement...</div>
+                        <div class="stat-label" id="overview-next-course-detail">—</div>
                     </div>
                 </div>
 
@@ -2120,6 +2120,7 @@
                 // on affiche un message vide propre (géré dans renderNotesTab).
                 
                 await loadTimetableData(); 
+                renderNextCourse();
                 calculateAcademicStatus();
                 checkReleveValidationStatus();
             } catch (err) {
@@ -2137,6 +2138,79 @@
             } catch(e) {
                 console.error("Erreur de chargement de l'EDT", e);
             }
+        }
+
+        function renderNextCourse() {
+            const el      = document.getElementById('overview-next-course');
+            const elDetail = document.getElementById('overview-next-course-detail');
+            if (!el || !elDetail) return;
+
+            const emplois = state.timetableData && state.timetableData.emplois;
+            if (!emplois || emplois.length === 0) {
+                el.innerText      = 'Aucun cours planifié';
+                elDetail.innerText = '—';
+                return;
+            }
+
+            // Ordre des jours de la semaine (Lun=1 … Sam=6)
+            const JOURS  = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+            // Plages : heure de début et libellé
+            const PLAGES = [
+                { label: '08h - 12h', debut: 8  },
+                { label: '14h - 18h', debut: 14 }
+            ];
+
+            const now         = new Date();
+            // JS : 0=Dim, 1=Lun … 6=Sam  →  on mappe vers JOURS (index 0..5)
+            const jsDay       = now.getDay(); // 0=Dim
+            const currentDayIdx = jsDay === 0 ? -1 : jsDay - 1; // Dim → -1 (pas dans JOURS)
+            const currentHour   = now.getHours();
+
+            // Construire la liste des créneaux disponibles dans l'EDT,
+            // chacun annoté avec son index de jour + plage
+            const slots = [];
+            emplois.forEach(e => {
+                const dayIdx   = JOURS.indexOf(e.jour_semaine);
+                const plageIdx = PLAGES.findIndex(p => p.label === e.plage_horaire);
+                if (dayIdx === -1 || plageIdx === -1) return;
+                slots.push({
+                    dayIdx,
+                    plageIdx,
+                    jour:     e.jour_semaine,
+                    plage:    e.plage_horaire,
+                    matiere:  e.matiere_nom || (e.matieres && e.matieres.nom) || 'Cours',
+                    debutH:   PLAGES[plageIdx].debut
+                });
+            });
+
+            if (slots.length === 0) {
+                el.innerText       = 'Aucun cours planifié';
+                elDetail.innerText = '—';
+                return;
+            }
+
+            // Trier par (dayIdx, plageIdx)
+            slots.sort((a, b) => a.dayIdx !== b.dayIdx ? a.dayIdx - b.dayIdx : a.plageIdx - b.plageIdx);
+
+            // Trouver le premier créneau FUTUR dans la semaine courante
+            let next = null;
+            for (const s of slots) {
+                if (s.dayIdx > currentDayIdx) { next = s; break; }
+                if (s.dayIdx === currentDayIdx && s.debutH > currentHour) { next = s; break; }
+            }
+
+            // Si aucun cours futur cette semaine → prendre le premier de la semaine prochaine
+            if (!next) next = slots[0];
+
+            const plageDisplay = next.plage === '08h - 12h' ? '08h00 – 12h00' : '14h00 – 18h00';
+
+            // Indiquer si c'est aujourd'hui, demain ou le nom du jour
+            let quand = next.jour;
+            if (next.dayIdx === currentDayIdx)   quand = 'Aujourd\'hui';
+            else if (next.dayIdx === currentDayIdx + 1) quand = 'Demain';
+
+            el.innerText       = next.matiere;
+            elDetail.innerText = `${quand} — ${plageDisplay}`;
         }
 
         function switchTimetableView(view) {
