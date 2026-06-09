@@ -2366,31 +2366,45 @@
                 ? state.matieres.filter(m => Array.isArray(m.niveaux) && m.niveaux.includes(niveau))
                 : state.matieres;
             const nbMatieresDuNiveau = matieresDuNiveau.length;
-            const nbNotesValidees    = state.notes.length; // backend ne renvoie que les validées
+            const nbNotesValidees    = state.notes.length;
             const releveComplet      = nbMatieresDuNiveau > 0 && nbNotesValidees === nbMatieresDuNiveau;
+
+            // ── Crédits : X validés (note >= 10) sur Y total du niveau ──
+            // Y = somme des crédits de toutes les matières du niveau
+            const creditsTotal = matieresDuNiveau.reduce((sum, m) => sum + (m.credits || 4), 0);
+
+            // X = somme des crédits des matières où l'étudiant a obtenu >= 10
+            let creditsValides = 0;
+            state.notes.forEach(n => {
+                const note = parseFloat(n.note_valeur);
+                if (!isNaN(note) && note >= 10) {
+                    const mat = state.matieres.find(m => m.id === n.matiere_id);
+                    creditsValides += mat ? (mat.credits || 4) : 4;
+                }
+            });
 
             if (!releveComplet) {
                 document.getElementById('overview-average').innerHTML =
                     `-- <span style="font-size:0.8rem;">/20</span>`;
                 document.getElementById('overview-credits').innerText =
-                    `${nbNotesValidees}/${nbMatieresDuNiveau} matières validées`;
+                    `${creditsValides} crédits validés sur ${creditsTotal}`;
                 return;
             }
 
-            let totalPoints = 0, totalCredits = 0;
+            let totalPoints = 0, totalCreditsCalc = 0;
             state.notes.forEach(n => {
                 const mat = state.matieres.find(m => m.id === n.matiere_id) || { credits: 4 };
                 const note = parseFloat(n.note_valeur);
                 if (!isNaN(note)) {
-                    totalPoints  += note * (mat.credits || 4);
-                    totalCredits += (mat.credits || 4);
+                    totalPoints      += note * (mat.credits || 4);
+                    totalCreditsCalc += (mat.credits || 4);
                 }
             });
-            const globalAverage = totalCredits > 0 ? totalPoints / totalCredits : 0;
+            const globalAverage = totalCreditsCalc > 0 ? totalPoints / totalCreditsCalc : 0;
             document.getElementById('overview-average').innerHTML =
                 `${globalAverage.toFixed(2)} <span style="font-size:0.8rem;">/20</span>`;
             document.getElementById('overview-credits').innerText =
-                `${totalCredits} Crédits validés`;
+                `${creditsValides} crédits validés sur ${creditsTotal}`;
             renderPerformanceChart(globalAverage);
         }
 
