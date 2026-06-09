@@ -227,5 +227,5 @@ Deux types d'emails sont envoyés automatiquement :
 
 ## Licence
 
-Projet académique réalisé dans le cadre d'un stage à la FAST Natitingou.  
+Projet académique réalisé dans le cadre d'un stage au CAEB Natitingou.
 © 2026 — Tous droits réservés.
