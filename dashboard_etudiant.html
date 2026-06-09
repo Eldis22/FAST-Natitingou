@@ -1,0 +1,2785 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Espace Étudiant - FAST Natitingou</title>
+    <style>html,body{background:#f4f6f9!important}</style>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #1a5276;
+            --secondary-color: #2e86c1;
+            --accent-color: #f39c12;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --info-color: #3498db;
+            --light-bg: #f4f6f9;
+            --dark-bg: #1a1a2e;
+            --text-color: #2c3e50;
+            --text-muted: #7f8c8d;
+            --white: #ffffff;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light-bg);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        /* --- ÉCRAN DE CHARGEMENT GLOBAL (PRELOADER) --- */
+        .global-preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--light-bg);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        
+        .global-preloader.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .preloader-logo {
+            height: 70px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        .preloader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(46, 134, 193, 0.1);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .preloader-text {
+            margin-top: 15px;
+            font-weight: 500;
+            color: var(--primary-color);
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            height: 70px;
+            gap: 10px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .logo-img {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .logo-text h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--white);
+            white-space: nowrap;
+        }
+
+        .logo-text p {
+            font-size: 0.65rem;
+            color: #a8d8ea;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 14px;
+            border-radius: 40px;
+        }
+
+        .user-badge i {
+            font-size: 1rem;
+            color: var(--accent-color);
+        }
+
+        .user-badge span {
+            color: var(--white);
+            font-weight: 500;
+            white-space: nowrap;
+            font-size: 0.85rem;
+        }
+
+        .btn-logout {
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            font-size: 0.85rem;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger-color);
+            transform: translateY(-2px);
+        }
+
+        /* ═══════════════════════════════════════════════
+           NOTIFICATION SYSTEM
+        ═══════════════════════════════════════════════ */
+        .notif-btn {
+            position: relative;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: background 0.2s, transform 0.2s;
+            flex-shrink: 0;
+        }
+        .notif-btn:hover { background: rgba(255,255,255,0.28); transform: translateY(-1px); }
+        .notif-badge {
+            position: absolute;
+            top: 2px; right: 2px;
+            background: #e74c3c;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            min-width: 16px; height: 16px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 3px; line-height: 1;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            animation: notif-pop 0.3s ease;
+        }
+        @keyframes notif-pop {
+            0% { transform: scale(0); }
+            70% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .notif-panel {
+            position: absolute;
+            top: calc(100% + 12px); right: 0;
+            width: 340px;
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+            z-index: 9999; overflow: hidden;
+            opacity: 0;
+            transform: translateY(-8px) scale(0.97);
+            pointer-events: none;
+            transition: opacity 0.22s ease, transform 0.22s ease;
+        }
+        .notif-panel.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: all; }
+        .notif-panel-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 18px 10px; border-bottom: 1px solid #f0f0f0;
+        }
+        .notif-panel-header h4 { margin: 0; font-size: 0.95rem; font-weight: 700; color: #1a1a2e; display: flex; align-items: center; gap: 7px; }
+        .notif-panel-header h4 i { color: #6c63ff; }
+        .notif-clear-btn {
+            background: none; border: 1px solid #e0e0e0; color: #888;
+            font-size: 0.72rem; padding: 3px 10px; border-radius: 20px;
+            cursor: pointer; transition: all 0.2s; font-weight: 500;
+        }
+        .notif-clear-btn:hover { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }
+        .notif-list { max-height: 320px; overflow-y: auto; padding: 6px 0; }
+        .notif-list::-webkit-scrollbar { width: 4px; }
+        .notif-list::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+        .notif-empty {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 36px 20px; color: #aaa; font-size: 0.85rem; gap: 10px;
+        }
+        .notif-empty i { font-size: 2rem; color: #ddd; }
+        .notif-item {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 12px 18px; border-bottom: 1px solid #f5f5f5; transition: background 0.15s;
+        }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item:hover { background: #fafafa; }
+        .notif-item.unread { background: #f0f4ff; }
+        .notif-item.unread:hover { background: #e8eeff; }
+        .notif-icon {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: linear-gradient(135deg, #6c63ff, #4a90e2);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 0.85rem; flex-shrink: 0;
+        }
+        .notif-content { flex: 1; min-width: 0; }
+        .notif-text { font-size: 0.82rem; color: #333; line-height: 1.45; margin: 0 0 4px; }
+        .notif-time { font-size: 0.71rem; color: #aaa; }
+        .notif-actions { margin-top: 6px; }
+        .notif-see-btn {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: linear-gradient(135deg, #6c63ff, #4a90e2);
+            color: white; border: none; padding: 4px 12px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 600; cursor: pointer;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .notif-see-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        .notif-wrapper { position: relative; }
+        @media (max-width: 600px) {
+            .notif-panel {
+                position: fixed;
+                top: 70px;
+                left: 12px;
+                right: 12px;
+                width: auto;
+                border-radius: 12px;
+            }
+        }
+
+        /* Menu Hamburger */
+        .menu-toggle {
+            display: none;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            z-index: 1001;
+            transition: var(--transition);
+        }
+
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .burger-icon {
+            width: 18px;
+            height: 2px;
+            background: var(--white);
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            transition: var(--transition);
+        }
+
+        .burger-icon::before,
+        .burger-icon::after {
+            content: '';
+            width: 18px;
+            height: 2px;
+            background: var(--white);
+            position: absolute;
+            left: 0;
+            transition: var(--transition);
+        }
+
+        .burger-icon::before { transform: translateY(-5px); }
+        .burger-icon::after { transform: translateY(5px); }
+
+        .menu-toggle.open-active .burger-icon {
+            background: transparent;
+        }
+        .menu-toggle.open-active .burger-icon::before {
+            transform: rotate(45deg) translateY(0);
+        }
+        .menu-toggle.open-active .burger-icon::after {
+            transform: rotate(-45deg) translateY(0);
+        }
+
+        /* Layout */
+        .dashboard-container {
+            display: flex;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--white);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            left: 0;
+            top: 70px;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 99;
+            transition: var(--transition);
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 70px);
+        }
+
+        .sidebar-menu-top {
+            flex: 1;
+        }
+
+        .sidebar-profile-section {
+            padding-top: 8px;
+            border-top: 1px solid rgba(0,0,0,0.07);
+            margin-top: 10px;
+        }
+
+        .profile-toggle {
+            justify-content: flex-start !important;
+            position: relative;
+        }
+
+        .profile-chevron {
+            margin-left: auto !important;
+            font-size: 0.7rem !important;
+            width: auto !important;
+            transition: transform 0.3s ease;
+            color: var(--text-muted);
+        }
+
+        .profile-chevron.open {
+            transform: rotate(180deg);
+        }
+
+        .profile-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.38s ease;
+        }
+
+        .profile-panel.open {
+            max-height: 500px;
+        }
+
+        .profile-card {
+            margin: 4px 12px 8px;
+            background: linear-gradient(135deg, rgba(26, 82, 118, 0.05), rgba(46, 134, 193, 0.07));
+            border-radius: 10px;
+            padding: 10px 0 6px;
+            border: 1px solid rgba(26, 82, 118, 0.1);
+        }
+
+        .profile-info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 5px 14px;
+            gap: 8px;
+        }
+
+        .profile-label {
+            font-size: 0.73rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .profile-value {
+            font-size: 0.78rem;
+            color: var(--text-color);
+            font-weight: 600;
+            text-align: right;
+            word-break: break-all;
+            overflow-wrap: anywhere;
+            min-width: 0;
+        }
+
+        .profile-divider {
+            height: 1px;
+            background: rgba(26, 82, 118, 0.1);
+            margin: 6px 14px;
+        }
+
+        .profile-change-pwd {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin: 6px 12px 4px;
+            padding: 8px 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 500;
+            width: calc(100% - 24px);
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .profile-change-pwd:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            margin: 4px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-muted);
+        }
+
+        .menu-item i {
+            width: 22px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .menu-item span {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .menu-item:hover {
+            background: #e8f0f8;
+            color: var(--secondary-color);
+        }
+
+        .menu-item.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+            box-shadow: var(--shadow);
+        }
+
+        /* Overlay Mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 70px);
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(3px);
+            z-index: 98;
+        }
+        .sidebar-overlay.visible {
+            display: block;
+        }
+
+        /* Contenu Principal */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 20px;
+            transition: var(--transition);
+            width: calc(100% - 260px);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* Cartes d'informations rapides */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-left: 4px solid;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card.moyenne { border-left-color: var(--info-color); }
+        .stat-card.filiere { border-left-color: var(--success-color); }
+        .stat-card.next-course { border-left-color: var(--accent-color); }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .stat-header i {
+            font-size: 1.8rem;
+        }
+
+        .stat-card.moyenne .stat-header i { color: var(--info-color); }
+        .stat-card.filiere .stat-header i { color: var(--success-color); }
+        .stat-card.next-course .stat-header i { color: var(--accent-color); }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        /* Graphiques */
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .chart-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--shadow);
+            min-width: 0;
+        }
+
+        .chart-card h3 {
+            margin-bottom: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+
+        /* Tableaux de notes */
+        .semester-container {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+
+        .semester-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .semester-header h4 {
+            font-size: 1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .semester-average {
+            background: #e8f8f5;
+            color: var(--success-color);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .table-container {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+
+        .table-responsive-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .table-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 0.85rem;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .note-value {
+            font-weight: 600;
+        }
+        .note-value.elimines { color: var(--danger-color); }
+
+        /* Action bar */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--white);
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .action-bar h3 {
+            font-size: 1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .action-bar p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Bannière de validation */
+        .validation-banner {
+            background: var(--white);
+            border-left: 4px solid var(--success-color);
+            border-radius: var(--border-radius);
+            padding: 14px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .validation-info h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 6px;
+        }
+
+        .validation-info p {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            margin: 3px 0;
+        }
+
+        .signature-badge {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .signature-badge.signed {
+            color: #27ae60;
+        }
+
+        .signature-badge.unsigned {
+            color: #e67e22;
+        }
+
+        /* Contrôles EDT */
+        .timetable-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--white);
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .timetable-controls h3 {
+            font-size: 1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .view-switcher {
+            display: inline-flex;
+            background: var(--light-bg);
+            padding: 4px;
+            border-radius: 30px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .view-btn {
+            background: transparent;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .view-btn.active {
+            background: var(--white);
+            color: var(--primary-color);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            font-weight: 600;
+        }
+
+        /* Emploi du temps - Vue Grille */
+        .timetable-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .day-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .day-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .day-title {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+            padding: 10px 15px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .course-list {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-height: 200px;
+        }
+
+        .course-item {
+            background: #f8f9fa;
+            border-left: 4px solid var(--info-color);
+            padding: 10px 12px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .course-item:hover {
+            background: #e8f0f8;
+            transform: translateX(3px);
+        }
+
+        .course-time {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+        .course-time i { margin-right: 4px; }
+        .course-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-color);
+            margin-bottom: 5px;
+        }
+        .course-meta {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .empty-day {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            padding: 20px 0;
+        }
+        .empty-day i { font-size: 1.3rem; margin-bottom: 8px; opacity: 0.5; }
+
+        /* Emploi du temps - Vue Tableau */
+        .timetable-table-wrapper {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            padding: 10px;
+        }
+
+        .timetable-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+
+         .timetable-table th {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+            text-align: center;
+            padding: 10px;
+            font-size: 0.85rem;
+        }
+
+        .timetable-table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #eef2f5;
+            vertical-align: middle;
+            font-size: 0.8rem;
+        }
+
+        .timetable-table td:first-child {
+            font-weight: 600;
+            background: #f8f9fa;
+            color: var(--primary-color);
+        }
+
+        .table-course-box {
+            background: #edf4fa;
+            border-left: 4px solid var(--secondary-color);
+            padding: 8px;
+            border-radius: 6px;
+            text-align: left;
+        }
+
+        .table-course-title {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-color);
+        }
+
+        .timetable-loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        /* Boutons */
+        .btn-download {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            font-size: 0.85rem;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 134, 193, 0.3);
+        }
+
+        .btn-download:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Modal de confirmation */
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confirm-modal.active {
+            display: flex;
+        }
+
+        .confirm-content {
+            background: var(--white);
+            border-radius: 20px;
+            max-width: 350px;
+            width: 90%;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+            animation: modalPop 0.2s ease-out;
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .confirm-icon {
+            width: 50px;
+            height: 50px;
+            background: #fee2e2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
+
+        .confirm-icon i {
+            font-size: 24px;
+            color: var(--danger-color);
+        }
+
+        .confirm-content h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+
+        .confirm-content p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .confirm-btn {
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+        }
+
+        .confirm-btn.cancel {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .confirm-btn.cancel:hover {
+            background: #cbd5e1;
+        }
+
+        .confirm-btn.logout {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+            color: white;
+        }
+
+        /* ── Modal changement de mot de passe ── */
+        .pwd-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+        .pwd-modal.active { display: flex; }
+        .pwd-modal-content {
+            background: var(--white);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 420px;
+            padding: 30px 25px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.2);
+            animation: modalPop 0.2s ease-out;
+        }
+        .pwd-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+        .pwd-modal-icon {
+            width: 44px; height: 44px;
+            background: #e8f4fd;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .pwd-modal-icon i { font-size: 20px; color: var(--secondary-color); }
+        .pwd-modal-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+        }
+        .pwd-field {
+            margin-bottom: 15px;
+        }
+        .pwd-field label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        .pwd-input-wrap {
+            position: relative;
+        }
+        .pwd-input-wrap input {
+            width: 100%;
+            padding: 10px 40px 10px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.88rem;
+            color: var(--text-color);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .pwd-input-wrap input:focus { border-color: var(--secondary-color); }
+        .pwd-toggle-eye {
+            position: absolute;
+            right: 12px; top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .pwd-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+        .pwd-hint.error { color: var(--danger-color); }
+        .pwd-hint.success { color: var(--success-color); }
+        .pwd-modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 22px;
+            justify-content: flex-end;
+        }
+        .pwd-btn {
+            padding: 9px 22px;
+            border-radius: 40px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .pwd-btn.cancel { background: #e2e8f0; color: #334155; }
+        .pwd-btn.cancel:hover { background: #cbd5e1; }
+        .pwd-btn.submit {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+        }
+        .pwd-btn.submit:hover { opacity: 0.9; }
+        .pwd-btn.submit:disabled { opacity: 0.6; cursor: not-allowed; }
+        .pwd-strength {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+        }
+        .pwd-strength-bar {
+            height: 4px;
+            flex: 1;
+            border-radius: 4px;
+            background: #e2e8f0;
+            transition: background 0.3s;
+        }
+
+
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            width: 35px;
+            height: 35px;
+            border: 3px solid #ecf0f1;
+            border-top-color: var(--secondary-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        /* En-tête impression */
+        .print-only-header {
+            display: none;
+        }
+
+        .print-signature-block {
+            display: none;
+        }
+
+        /* Styles d'impression */
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 10mm;
+            }
+            
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-size: 11pt;
+            }
+
+            .header, .sidebar, .sidebar-overlay, .timetable-controls, .validation-banner, .btn-download, 
+            .global-preloader, .toast-container, .stats-grid, .charts-row, #panel-overview,
+            .action-bar, .menu-toggle {
+                display: none !important;
+            }
+            
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+            
+            .tab-panel {
+                display: none !important;
+            }
+            
+            /* Impression emploi du temps (défaut) */
+            body:not(.print-releve) #panel-timetable {
+                display: block !important;
+                width: 100% !important;
+            }
+
+            /* Impression relevé de notes */
+            body.print-releve #panel-notes {
+                display: block !important;
+                width: 100% !important;
+            }
+            body.print-releve #panel-timetable {
+                display: none !important;
+            }
+
+            .print-only-header {
+                display: block !important;
+                width: 100%;
+                border-bottom: 2px dashed #1a5276;
+                padding-bottom: 15px;
+                margin-bottom: 25px;
+            }
+            
+            .print-header-top {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+            }
+            
+            .print-institution {
+                text-align: left;
+                font-size: 10pt;
+                line-height: 1.3;
+                text-transform: uppercase;
+                font-weight: bold;
+                color: #1a5276;
+            }
+            
+            .print-doc-title {
+                text-align: center;
+                margin-top: 10px;
+            }
+            
+            .print-doc-title h2 {
+                font-size: 16pt;
+                color: #2e86c1;
+                font-weight: 700;
+            }
+            
+            .print-meta-grid {
+                margin-top: 12px;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+                font-size: 10pt;
+                background: #f8f9fa;
+                padding: 10px;
+                border-radius: 6px;
+                border: 1px solid #e2e8f0;
+            }
+
+            .timetable-table-wrapper {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                width: 100% !important;
+            }
+            
+            .timetable-table {
+                width: 100% !important;
+                table-layout: fixed !important;
+                border-collapse: collapse !important;
+            }
+            
+            .timetable-table th {
+                background: #1a5276 !important;
+                color: #ffffff !important;
+                border: 1px solid #1a5276 !important;
+                font-size: 9pt !important;
+                padding: 8px 4px !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .timetable-table td {
+                border: 1px solid #a0aec0 !important;
+                padding: 6px !important;
+                font-size: 8.5pt !important;
+                word-wrap: break-word !important;
+                white-space: normal !important;
+            }
+            
+            .table-course-box {
+                background: #edf4fa !important;
+                border-left: 4px solid #2e86c1 !important;
+                padding: 5px !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .print-signature-block {
+                display: flex !important;
+                justify-content: flex-end;
+                margin-top: 35px;
+                page-break-inside: avoid;
+            }
+            
+            .signature-stamp {
+                text-align: center;
+                border: 1px dashed #27ae60;
+                background: #f4fbf7 !important;
+                padding: 15px 30px;
+                border-radius: 8px;
+                width: 280px;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .signature-stamp h4 {
+                font-size: 10pt;
+                color: #27ae60;
+                margin-bottom: 25px;
+                font-weight: 600;
+            }
+            
+            .signature-stamp p {
+                font-size: 9pt;
+                font-style: italic;
+                color: #2c3e50;
+                font-weight: bold;
+            }
+
+            /* Styles relevé de notes pour impression */
+            body.print-releve .notes-module-card {
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+                margin-bottom: 15px !important;
+                page-break-inside: avoid;
+            }
+            body.print-releve .notes-module-header {
+                background: #1a5276 !important;
+                color: #fff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            body.print-releve table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+            body.print-releve table th {
+                background: #eaf2fb !important;
+                font-size: 9pt !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            body.print-releve table td,
+            body.print-releve table th {
+                border: 1px solid #ccc !important;
+                padding: 5px 8px !important;
+                font-size: 9pt !important;
+            }
+            body.print-releve #printArea {
+                display: block !important;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar { width: 220px; }
+            .main-content { margin-left: 220px; width: calc(100% - 220px); }
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; }
+            .user-badge span { display: none; }
+            .btn-logout span { display: none; }
+            .btn-logout { padding: 6px 10px; border-radius: 50%; }
+            .sidebar {
+                left: -260px;
+                width: 260px;
+                top: 70px;
+            }
+            .sidebar.open { left: 0; }
+            .sidebar .menu-item span { display: inline; }
+            .sidebar .menu-item {
+                justify-content: flex-start;
+                padding: 10px 20px;
+                margin: 3px 10px;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 15px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .charts-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .timetable-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .view-switcher {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-text { display: none; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .stat-value { font-size: 1.4rem; }
+            .stat-header i { font-size: 1.4rem; }
+            th, td { padding: 6px 8px; font-size: 0.7rem; }
+            .semester-header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="global-preloader" id="globalPreloader">
+        <img src="unstim.png" alt="Logo UNSTIM" class="preloader-logo">
+        <div class="preloader-spinner"></div>
+        <div class="preloader-text">FAST NATITINGOU</div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo-section">
+                <button class="menu-toggle" id="menuToggle" onclick="window.toggleSidebar()">
+                    <span class="burger-icon"></span>
+                </button>
+                <img src="unstim.png" alt="Logo UNSTIM" class="logo-img">
+                <div class="logo-text">
+                    <h1>FAST Natitingou</h1>
+                    <p>Espace Étudiant</p>
+                </div>
+            </div>
+            <div class="user-info">
+                <!-- Notification Bell -->
+                <div class="notif-wrapper" id="notifWrapper">
+                    <button class="notif-btn" id="notifBtn" title="Notifications" aria-label="Notifications">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="notif-panel" id="notifPanel">
+                        <div class="notif-panel-header">
+                            <h4><i class="fas fa-bell"></i> Notifications</h4>
+                            <button class="notif-clear-btn" id="notifClearBtn">Tout effacer</button>
+                        </div>
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-empty"><i class="fas fa-bell-slash"></i><span>Aucune notification</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="user-badge">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Portail étudiant</span>
+                </div>
+                <button class="btn-logout" onclick="window.logout()">
+                    <i class="fas fa-sign-out-alt"></i> <span>Déconnexion</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="window.toggleSidebar()"></div>
+
+    <div class="dashboard-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-menu">
+                <div class="sidebar-menu-top">
+                    <div class="menu-item active" data-tab="overview">
+                        <i class="fas fa-th-large"></i><span>Vue d'ensemble</span>
+                    </div>
+                    <div class="menu-item" data-tab="timetable">
+                        <i class="fas fa-calendar-alt"></i><span>Emploi du temps</span>
+                    </div>
+                    <div class="menu-item" data-tab="notes">
+                        <i class="fas fa-file-invoice"></i><span>Mes Notes & Relevés</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-profile-section">
+                    <div class="menu-item profile-toggle" id="profileToggle" onclick="window.toggleProfilePanel()">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Mon profil</span>
+                        <i class="fas fa-chevron-down profile-chevron" id="profileChevron"></i>
+                    </div>
+                    <div class="profile-panel" id="profilePanel">
+                        <div class="profile-card">
+                            <div class="profile-info-item">
+                                <span class="profile-label">Profil</span>
+                                <span class="profile-value" id="profile-role">Étudiant</span>
+                            </div>
+                            <div class="profile-info-item">
+                                <span class="profile-label">Nom</span>
+                                <span class="profile-value" id="profile-nom">--</span>
+                            </div>
+                            <div class="profile-info-item">
+                                <span class="profile-label">Prénom</span>
+                                <span class="profile-value" id="profile-prenom">--</span>
+                            </div>
+                            <div class="profile-info-item">
+                                <span class="profile-label">Matricule</span>
+                                <span class="profile-value" id="profile-matricule">--</span>
+                            </div>
+                            <div class="profile-info-item">
+                                <span class="profile-label">Filière</span>
+                                <span class="profile-value" id="profile-filiere">--</span>
+                            </div>
+                            <div class="profile-divider"></div>
+                            <div class="profile-info-item">
+                                <span class="profile-label">E-mail</span>
+                                <span class="profile-value" id="profile-email">--</span>
+                            </div>
+                            <div class="profile-divider"></div>
+                            <button class="profile-change-pwd" onclick="openChangePwdModal()">
+                                <i class="fas fa-key"></i> Changer mon mot de passe
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            
+            <!-- VUE D'ENSEMBLE -->
+            <section class="tab-panel active" id="panel-overview">
+                <div class="stats-grid">
+                    <div class="stat-card moyenne">
+                        <div class="stat-header">
+                            <span class="stat-label">Moyenne Générale</span>
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-value" id="overview-average">--/20</div>
+                        <div class="stat-label" id="overview-credits">0 crédits validés</div>
+                    </div>
+                    <div class="stat-card filiere">
+                        <div class="stat-header">
+                            <span class="stat-label">Filière & Niveau</span>
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div class="stat-value" id="overview-filiere" style="font-size: 1.2rem; padding: 8px 0;">Chargement...</div>
+                        <div class="stat-label" id="overview-matricule">Matricule: --------</div>
+                    </div>
+                    <div class="stat-card next-course">
+                        <div class="stat-header">
+                            <span class="stat-label">Prochain Cours</span>
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-value" id="overview-next-course" style="font-size: 1.1rem; padding: 8px 0;">Algorithmique Python</div>
+                        <div class="stat-label">À 10:30 — Labo Info 1</div>
+                    </div>
+                </div>
+
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-area"></i> Progression des moyennes semestrielles</h3>
+                        <div class="chart-container"><canvas id="perfChart"></canvas></div>
+                    </div>
+                    <div class="chart-card">
+                        <h3><i class="fas fa-bullhorn"></i> Informations FAST</h3>
+                        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.85rem;">
+                            <p style="border-left: 3px solid var(--accent-color); padding-left: 8px;">
+                                <strong>Soutenances L3 :</strong> Les dépôts de rapports finaux sont prolongés jusqu'au 15 juin 2026.
+                            </p>
+                            <p style="border-left: 3px solid var(--info-color); padding-left: 8px;">
+                                <strong>Examens de rattrapage :</strong> Le calendrier du Semestre 1 sera affiché prochainement.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- NOTES ET RELEVES -->
+            <section class="tab-panel" id="panel-notes">
+                <div class="action-bar">
+                    <div>
+                        <h3><i class="fas fa-file-alt"></i> Attestation de Notes Électronique</h3>
+                        <p id="releve-status-text">Vérification de la validation administrative...</p>
+                    </div>
+                    <button class="btn-download" id="btnPrintReleve" onclick="window.printReleve()" disabled>
+                        <i class="fas fa-print"></i> Imprimer le relevé
+                    </button>
+                </div>
+
+                <!-- EN-TÊTE IMPRESSION RELEVÉ -->
+                <div class="print-only-header" id="releveHeaderPrint">
+                    <div class="print-header-top">
+                        <div class="print-institution">
+                            Université Nationale des Sciences, Technologies, Ingénierie et Mathématiques<br>
+                            <strong>Faculté des Sciences et Techniques</strong><br>
+                            <span style="font-size: 8pt; text-transform: none;">FAST Natitingou</span>
+                        </div>
+                        <div style="text-align: right; font-size: 9pt; color: var(--text-muted);">
+                            Système d'Information Académique FAST<br>
+                            Espace Étudiant Numérique
+                        </div>
+                    </div>
+                    <div class="print-doc-title">
+                        <h2>RELEVÉ DE NOTES OFFICIEL</h2>
+                    </div>
+                    <div class="print-meta-grid">
+                        <div><strong>Étudiant :</strong> <span id="releve-print-student-name">...</span></div>
+                        <div><strong>Filière :</strong> <span id="releve-print-student-filiere">...</span></div>
+                        <div><strong>Année Académique :</strong> <span id="releve-print-annee">...</span></div>
+                        <div><strong>Imprimé le :</strong> <span id="releve-print-date">...</span></div>
+                    </div>
+                </div>
+
+                <div id="printArea">
+                    <div id="notesModulesContainer">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Chargement de votre livret de notes...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- EMPLOI DU TEMPS -->
+            <section class="tab-panel" id="panel-timetable">
+                
+                <!-- EN-TÊTE D'IMPRESSION EXCLUSIF -->
+                <div class="print-only-header">
+                    <div class="print-header-top">
+                        <div class="print-institution">
+                            Université Nationale des Sciences, Technologies, Ingénierie et Mathématiques<br>
+                            <strong>Faculté des Sciences et Techniques</strong><br>
+                            <span style="font-size: 8pt; text-transform: none;">FAST Natitingou</span>
+                        </div>
+                        <div style="text-align: right; font-size: 9pt; color: var(--text-muted);">
+                            Système d'Information Académique FAST<br>
+                            Espace Étudiant Numérique
+                        </div>
+                    </div>
+                    <div class="print-doc-title">
+                        <h2>EMPLOI DU TEMPS OFFICIEL</h2>
+                    </div>
+                    <div class="print-meta-grid">
+                        <div><strong>Étudiant :</strong> <span id="print-student-name">...</span></div>
+                        <div><strong>Filière :</strong> <span id="print-student-filiere">...</span></div>
+                        <div><strong>Période Académique :</strong> <span id="print-edt-periode">...</span></div>
+                        <div><strong>Imprimé le :</strong> <span id="print-generation-time">...</span></div>
+                    </div>
+                </div>
+
+                <div id="validationBanner" class="validation-banner" style="display: none;">
+                    <div class="validation-info">
+                        <h3><i class="fas fa-calendar-check"></i> Emploi du temps</h3>
+                        <p id="validationPeriod"></p>
+                        <p id="validationDate"></p>
+                    </div>
+                    <div id="signatureBadge" class="signature-badge">
+                        <span id="signatureText"></span>
+                    </div>
+                </div>
+
+                <div class="timetable-controls">
+                    <div>
+                        <h3><i class="fas fa-calendar-week"></i> Planification des cours</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);" id="timetableInfo">
+                            Consultez la planification officielle de votre filière.
+                        </p>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                        <div class="view-switcher">
+                            <button class="view-btn active" id="btnViewGrid" onclick="switchTimetableView('grid')">
+                                <i class="fas fa-th-large"></i> Grille
+                            </button>
+                            <button class="view-btn" id="btnViewTable" onclick="switchTimetableView('table')">
+                                <i class="fas fa-table"></i> Tableau
+                            </button>
+                        </div>
+                        <button class="btn-download" onclick="window.downloadEDT()">
+                            <i class="fas fa-download"></i> Télécharger PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div id="timetableContainer">
+                    <!-- Chargé dynamiquement -->
+                </div>
+
+                <div class="print-signature-block" id="printSignatureBlock">
+                    <div class="signature-stamp">
+                        <h4>Signé numériquement par :</h4>
+                        <p>L'Administration FAST</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    
+    <div id="confirmLogoutModal" class="confirm-modal">
+        <div class="confirm-content">
+            <div class="confirm-icon"><i class="fas fa-sign-out-alt"></i></div>
+            <h3>Déconnexion</h3>
+            <p>Êtes-vous sûr de vouloir vous déconnecter de votre session ?</p>
+            <div class="confirm-buttons">
+                <button class="confirm-btn cancel" onclick="closeConfirmModal()">Annuler</button>
+                <button class="confirm-btn logout" id="confirmLogoutBtn">Se déconnecter</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal changement de mot de passe -->
+    <div id="changePwdModal" class="pwd-modal">
+        <div class="pwd-modal-content">
+            <div class="pwd-modal-header">
+                <div class="pwd-modal-icon"><i class="fas fa-key"></i></div>
+                <h3>Changer mon mot de passe</h3>
+            </div>
+            <div class="pwd-field">
+                <label>Ancien mot de passe</label>
+                <div class="pwd-input-wrap">
+                    <input type="password" id="pwdOld" placeholder="Votre mot de passe actuel" autocomplete="current-password">
+                    <i class="fas fa-eye pwd-toggle-eye" onclick="togglePwdVisibility('pwdOld', this)"></i>
+                </div>
+                <div class="pwd-hint" id="pwdOldHint"></div>
+            </div>
+            <div class="pwd-field">
+                <label>Nouveau mot de passe</label>
+                <div class="pwd-input-wrap">
+                    <input type="password" id="pwdNew" placeholder="Min. 6 caractères (lettres + chiffres)" autocomplete="new-password" oninput="checkPwdStrength(this.value)">
+                    <i class="fas fa-eye pwd-toggle-eye" onclick="togglePwdVisibility('pwdNew', this)"></i>
+                </div>
+                <div class="pwd-strength">
+                    <div class="pwd-strength-bar" id="sb1"></div>
+                    <div class="pwd-strength-bar" id="sb2"></div>
+                    <div class="pwd-strength-bar" id="sb3"></div>
+                </div>
+                <div class="pwd-hint" id="pwdNewHint"></div>
+            </div>
+            <div class="pwd-field">
+                <label>Confirmer le nouveau mot de passe</label>
+                <div class="pwd-input-wrap">
+                    <input type="password" id="pwdConfirm" placeholder="Répétez le nouveau mot de passe" autocomplete="new-password">
+                    <i class="fas fa-eye pwd-toggle-eye" onclick="togglePwdVisibility('pwdConfirm', this)"></i>
+                </div>
+                <div class="pwd-hint" id="pwdConfirmHint"></div>
+            </div>
+            <div class="pwd-modal-actions">
+                <button class="pwd-btn cancel" onclick="closeChangePwdModal()">Annuler</button>
+                <button class="pwd-btn submit" id="pwdSubmitBtn" onclick="submitChangePassword()">
+                    <i class="fas fa-check"></i> Confirmer
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = "https://eldis229-fast-nati.hf.space";
+        window._API_BASE = API_BASE;
+
+        
+        const state = {
+            token: localStorage.getItem('token'),
+            studentInfo: null,
+            notes: [],
+            matieres: [],
+            timetable: [],
+            charts: {},
+            currentTimetableView: 'grid'
+        };
+
+        // ─── GUARD : token présent ET rôle étudiant ───────────────────────
+        if (!state.token) { window.location.href = 'index.html'; }
+        const _storedRole = localStorage.getItem('userRole');
+        if (_storedRole && _storedRole !== 'etudiant') {
+            window.location.href = _storedRole === 'admin' ? 'dashboard_admin.html' : _storedRole === 'enseignant' ? 'dashboard_enseignant.html' : 'index.html';
+        }
+
+        async function fetchAPI(endpoint, options = {}) {
+            const headers = {
+                'Authorization': `Bearer ${state.token}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+                if (response.status === 401) {
+                    showToast("Accès refusé. Votre session est invalide, veuillez vous reconnecter.", "error");
+                    setTimeout(() => window.logout(), 3000);
+                    throw new Error("401 Unauthorized");
+                }
+                return response;
+            } catch (err) {
+                console.error("Fetch API Error:", err);
+                throw err;
+            }
+        }
+
+        function showToast(message, type = "info") {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            let icon = "fa-info-circle";
+            if (type === "success") icon = "fa-check-circle";
+            else if (type === "error") icon = "fa-exclamation-circle";
+            else if (type === "warning") icon = "fa-exclamation-triangle";
+            toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('menuToggle').classList.toggle('open-active');
+            document.getElementById('sidebarOverlay').classList.toggle('visible');
+        }
+
+        function toggleProfilePanel() {
+            const panel = document.getElementById('profilePanel');
+            const chevron = document.getElementById('profileChevron');
+            const toggle = document.getElementById('profileToggle');
+            panel.classList.toggle('open');
+            chevron.classList.toggle('open');
+            toggle.classList.toggle('active');
+        }
+
+        const confirmModal = document.getElementById('confirmLogoutModal');
+
+        function showConfirmModal() { if (confirmModal) confirmModal.classList.add('active'); }
+        function closeConfirmModal() { if (confirmModal) confirmModal.classList.remove('active'); }
+        function performLogout() { localStorage.clear(); window.location.href = 'index.html'; }
+
+        const confirmBtn = document.getElementById('confirmLogoutBtn');
+        if (confirmBtn) {
+            confirmBtn.onclick = function() {
+                closeConfirmModal();
+                performLogout();
+            };
+        }
+
+        window.logout = function() { showConfirmModal(); };
+        window.toggleSidebar = toggleSidebar;
+        window.toggleProfilePanel = toggleProfilePanel;
+        window.closeConfirmModal = closeConfirmModal;
+
+        // ── Changement de mot de passe ──────────────────────────────────
+        function openChangePwdModal() {
+            document.getElementById('pwdOld').value = '';
+            document.getElementById('pwdNew').value = '';
+            document.getElementById('pwdConfirm').value = '';
+            ['pwdOldHint','pwdNewHint','pwdConfirmHint'].forEach(id => {
+                const el = document.getElementById(id);
+                el.textContent = ''; el.className = 'pwd-hint';
+            });
+            ['sb1','sb2','sb3'].forEach(id => document.getElementById(id).style.background = '#e2e8f0');
+            document.getElementById('pwdSubmitBtn').disabled = false;
+            document.getElementById('changePwdModal').classList.add('active');
+        }
+
+        function closeChangePwdModal() {
+            document.getElementById('changePwdModal').classList.remove('active');
+        }
+
+        function togglePwdVisibility(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye','fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash','fa-eye');
+            }
+        }
+
+        function checkPwdStrength(val) {
+            const hasLetter = /[A-Za-z]/.test(val);
+            const hasDigit  = /[0-9]/.test(val);
+            const long      = val.length >= 6;
+            const colors = ['#e74c3c','#f39c12','#27ae60'];
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (hasLetter && hasDigit) score++;
+            if (val.length >= 10 && hasLetter && hasDigit) score++;
+            ['sb1','sb2','sb3'].forEach((id, i) => {
+                document.getElementById(id).style.background = i < score ? colors[score-1] : '#e2e8f0';
+            });
+            const hint = document.getElementById('pwdNewHint');
+            if (!val) { hint.textContent = ''; hint.className = 'pwd-hint'; return; }
+            if (!long) { hint.textContent = 'Minimum 6 caractères requis.'; hint.className = 'pwd-hint error'; return; }
+            if (!hasLetter) { hint.textContent = 'Ajoutez au moins une lettre.'; hint.className = 'pwd-hint error'; return; }
+            if (!hasDigit) { hint.textContent = 'Ajoutez au moins un chiffre.'; hint.className = 'pwd-hint error'; return; }
+            hint.textContent = score === 3 ? 'Mot de passe fort ✓' : 'Mot de passe acceptable ✓';
+            hint.className = 'pwd-hint success';
+        }
+
+        async function submitChangePassword() {
+            const ancien  = document.getElementById('pwdOld').value.trim();
+            const nouveau = document.getElementById('pwdNew').value;
+            const confirm = document.getElementById('pwdConfirm').value;
+            const btn = document.getElementById('pwdSubmitBtn');
+
+            // Reset hints
+            ['pwdOldHint','pwdNewHint','pwdConfirmHint'].forEach(id => {
+                const el = document.getElementById(id); el.textContent = ''; el.className = 'pwd-hint';
+            });
+
+            let valid = true;
+            if (!ancien) {
+                const h = document.getElementById('pwdOldHint');
+                h.textContent = 'Veuillez saisir votre ancien mot de passe.'; h.className = 'pwd-hint error'; valid = false;
+            }
+            const hasLetter = /[A-Za-z]/.test(nouveau);
+            const hasDigit  = /[0-9]/.test(nouveau);
+            if (nouveau.length < 6 || !hasLetter || !hasDigit) {
+                const h = document.getElementById('pwdNewHint');
+                h.textContent = 'Min. 6 caractères avec au moins une lettre et un chiffre.'; h.className = 'pwd-hint error'; valid = false;
+            }
+            if (nouveau !== confirm) {
+                const h = document.getElementById('pwdConfirmHint');
+                h.textContent = 'Les mots de passe ne correspondent pas.'; h.className = 'pwd-hint error'; valid = false;
+            }
+            if (!valid) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement…';
+            try {
+                const res = await fetch(`${API_BASE}/auth/change-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.token}` },
+                    body: JSON.stringify({ ancien_mot_de_passe: ancien, nouveau_mot_de_passe: nouveau })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    const h = document.getElementById('pwdOldHint');
+                    h.textContent = data.detail || 'Une erreur est survenue.'; h.className = 'pwd-hint error';
+                    btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Confirmer'; return;
+                }
+                closeChangePwdModal();
+                // Petit toast de succès
+                const toast = document.createElement('div');
+                toast.style.cssText = 'position:fixed;bottom:30px;right:30px;background:#27ae60;color:#fff;padding:12px 22px;border-radius:12px;font-family:Poppins,sans-serif;font-size:.85rem;font-weight:500;z-index:99999;box-shadow:0 4px 15px rgba(0,0,0,.2);';
+                toast.innerHTML = '<i class="fas fa-check-circle"></i> Mot de passe modifié avec succès !';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3500);
+            } catch(e) {
+                const h = document.getElementById('pwdOldHint');
+                h.textContent = 'Erreur réseau. Veuillez réessayer.'; h.className = 'pwd-hint error';
+                btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Confirmer';
+            }
+        }
+
+        window.openChangePwdModal = openChangePwdModal;
+        window.closeChangePwdModal = closeChangePwdModal;
+        window.togglePwdVisibility = togglePwdVisibility;
+        window.checkPwdStrength = checkPwdStrength;
+        window.submitChangePassword = submitChangePassword;
+
+        document.querySelectorAll('.menu-item:not(.profile-toggle)').forEach(item => {
+            item.addEventListener('click', () => {
+                const tab = item.dataset.tab;
+                
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                document.getElementById(`panel-${tab}`).classList.add('active');
+                
+                if (window.innerWidth <= 768) toggleSidebar();
+                
+                if (tab === 'notes') {
+                    const container = document.getElementById('notesModulesContainer');
+                    container.innerHTML = `
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Mise à jour du livret de notes...</p>
+                        </div>
+                    `;
+                    setTimeout(() => { renderNotesTab(); }, 600);
+                }
+                
+                if (tab === 'timetable') {
+                    renderTimetableTab();
+                }
+            });
+        });
+
+        async function initStudentDashboard() {
+            try {
+                const meResponse = await fetchAPI('/etudiant/me');
+                if (meResponse.ok) {
+                    state.studentInfo = await meResponse.json();
+                    const fullName = `${state.studentInfo.prenom || ''} ${state.studentInfo.nom || ''}`.trim();
+                    const filiere = state.studentInfo.niveau || "Informatique de Gestion (IG)";
+                    
+                    document.getElementById('overview-filiere').innerText = filiere;
+                    document.getElementById('overview-matricule').innerText = `Matricule: ${state.studentInfo.identifiant || "Non défini"}`;
+                    
+                    document.getElementById('print-student-name').innerText = fullName;
+                    document.getElementById('print-student-filiere').innerText = filiere;
+
+                    // En-tête impression relevé
+                    const releveNameEl = document.getElementById('releve-print-student-name');
+                    const releveFiliereEl = document.getElementById('releve-print-student-filiere');
+                    const releveDateEl = document.getElementById('releve-print-date');
+                    const releveAnneeEl = document.getElementById('releve-print-annee');
+                    if (releveNameEl) releveNameEl.innerText = fullName;
+                    if (releveFiliereEl) releveFiliereEl.innerText = filiere;
+                    if (releveDateEl) releveDateEl.innerText = new Date().toLocaleDateString('fr-FR', {day:'2-digit',month:'long',year:'numeric'});
+                    if (releveAnneeEl) releveAnneeEl.innerText = '2025 – 2026';
+
+                    // Profil sidebar
+                    document.getElementById('profile-nom').innerText = state.studentInfo.nom || '--';
+                    document.getElementById('profile-prenom').innerText = state.studentInfo.prenom || '--';
+                    document.getElementById('profile-matricule').innerText = state.studentInfo.identifiant || '--';
+                    document.getElementById('profile-filiere').innerText = filiere;
+                    document.getElementById('profile-email').innerText = state.studentInfo.email || '--';
+
+                    // Init notifications for this student's niveau
+                    window._studentNiveau = filiere;
+                    if (window.NotifSystem) window.NotifSystem.initForNiveau(filiere);
+                }
+
+                const [matieresRes, notesRes] = await Promise.all([
+                    fetchAPI('/etudiant/mes-matieres').catch(() => ({ ok: false })),
+                    fetchAPI('/etudiant/mes-notes').catch(() => ({ ok: false }))
+                ]);
+
+                state.matieres = matieresRes.ok ? await matieresRes.json() : [];
+                state.notes = notesRes.ok ? await notesRes.json() : [];
+                
+                // Aucune donnée fictive : si l'étudiant n'a pas encore de notes validées,
+                // on affiche un message vide propre (géré dans renderNotesTab).
+                
+                await loadTimetableData(); 
+                calculateAcademicStatus();
+                checkReleveValidationStatus();
+            } catch (err) {
+                showToast("Échec de la synchronisation des données académiques", "error");
+            }
+        }
+
+        async function loadTimetableData() {
+            try {
+                const response = await fetchAPI('/etudiant/mon-emploi-du-temps');
+                if (response.ok) {
+                    const data = await response.json();
+                    state.timetableData = data; 
+                }
+            } catch(e) {
+                console.error("Erreur de chargement de l'EDT", e);
+            }
+        }
+
+        function switchTimetableView(view) {
+            state.currentTimetableView = view;
+            const gridBtn = document.getElementById('btnViewGrid');
+            const tableBtn = document.getElementById('btnViewTable');
+            if (gridBtn) gridBtn.classList.toggle('active', view === 'grid');
+            if (tableBtn) tableBtn.classList.toggle('active', view === 'table');
+            renderTimetableContent();
+        }
+        window.switchTimetableView = switchTimetableView;
+
+        async function renderTimetableTab() {
+            if (!state.timetableData) {
+                await loadTimetableData();
+            }
+            renderTimetableContent();
+        }
+        window.renderTimetableTab = renderTimetableTab;
+
+        function renderTimetableContent() {
+            const container = document.getElementById('timetableContainer');
+            const data = state.timetableData;
+
+            if (!data) {
+                container.innerHTML = `<p style="text-align:center;padding:20px;">Erreur de chargement ou aucun emploi du temps disponible.</p>`;
+                return;
+            }
+
+            const validationBanner = document.getElementById('validationBanner');
+            const timetableInfo = document.getElementById('timetableInfo');
+            const badge = document.getElementById('signatureBadge');
+            const printPeriode = document.getElementById('print-edt-periode');
+            const printSignatureBlock = document.getElementById('printSignatureBlock');
+            
+            const pText = (data.validation && data.validation.periode) ? data.validation.periode : "Semestre en cours";
+            if (printPeriode) printPeriode.innerText = pText;
+
+            const now = new Date();
+            const exactTimeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            if (data.validee && data.validation) {
+                validationBanner.style.display = 'flex';
+                validationBanner.style.background = '';
+                validationBanner.style.borderLeftColor = '';
+                document.getElementById('validationPeriod').innerHTML = `<i class="fas fa-tag"></i> Période: <strong>${data.validation.periode}</strong>`;
+                document.getElementById('validationDate').innerHTML = `<i class="fas fa-calendar-day"></i> Publié le: ${formatDate(data.validation.valide_le)}`;
+                timetableInfo.innerHTML = `${data.validation.periode} — Planning officiel des cours`;
+                
+                if (badge) {
+                    if (data.validation.est_signe) {
+                        badge.className = "signature-badge signed";
+                        document.getElementById('signatureText').innerText = "Validé & Signé";
+                    } else {
+                        badge.className = "signature-badge unsigned";
+                        document.getElementById('signatureText').innerText = "Non signé";
+                    }
+                }
+                if (printSignatureBlock) printSignatureBlock.style.display = '';
+            } else {
+                // Aucun emploi du temps publié : masquer toutes les métadonnées
+                validationBanner.style.display = 'none';
+                timetableInfo.innerHTML = `Consultez la planification officielle de votre filière.`;
+                if (printSignatureBlock) printSignatureBlock.style.display = 'none';
+            }
+
+            const emplois = data.emplois || [];
+
+            if (state.currentTimetableView === 'grid') {
+                renderTimetableGrid(emplois);
+            } else {
+                renderTimetableTable(emplois);
+            }
+        }
+
+        function renderTimetableGrid(emplois) {
+            const container = document.getElementById('timetableContainer');
+            const jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+            
+            if (!emplois || emplois.length === 0) {
+                container.innerHTML = `<div class="timetable-loading"><i class="fas fa-calendar-times"></i><p>Aucun cours planifié</p></div>`;
+                return;
+            }
+
+            const coursesByDay = {};
+            jours.forEach(j => coursesByDay[j] = []);
+            emplois.forEach(e => { if (coursesByDay[e.jour_semaine]) coursesByDay[e.jour_semaine].push(e); });
+
+            container.className = "timetable-grid";
+            container.innerHTML = jours.map(jour => {
+                const courses = coursesByDay[jour];
+                return `
+                    <div class="day-card">
+                        <div class="day-title">${jour}</div>
+                        <div class="course-list">
+                            ${courses.length > 0 ? courses.map(c => `
+                                <div class="course-item">
+                                    <div class="course-time"><i class="far fa-clock"></i> ${c.plage_horaire}</div>
+                                    <div class="course-name"><strong>${c.matiere_nom || (c.matieres && c.matieres.nom) || "Matière inconnue"}</strong></div>
+                                    <div class="course-meta">
+                                        <span><i class="fas fa-map-marker-alt"></i> Salle à confirmer</span>
+                                    </div>
+                                </div>
+                            `).join('') : `<div class="empty-day"><i class="fas fa-coffee"></i><p>Aucun cours</p></div>`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderTimetableTable(emplois) {
+            const container = document.getElementById('timetableContainer');
+            const jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+            const plages = ["08h - 12h", "14h - 18h"];
+
+            if (!emplois || emplois.length === 0) {
+                container.innerHTML = `<div class="timetable-loading"><i class="fas fa-calendar-times"></i><p>Aucun cours planifié</p></div>`;
+                container.className = "";
+                return;
+            }
+
+            container.className = "";
+            container.innerHTML = `
+            <div style="overflow-x:auto;">
+              <table style="width:100%;border-collapse:collapse;min-width:600px;">
+                <thead>
+                  <tr>
+                    <th style="padding:10px;background:var(--primary-color);color:#fff;border-radius:8px 0 0 0;width:100px;">Plage</th>
+                    ${jours.map((j,i) => `<th style="padding:10px;background:var(--primary-color);color:#fff;${i===jours.length-1?'border-radius:0 8px 0 0;':''}">${j}</th>`).join('')}
+                  </tr>
+                </thead>
+                <tbody>
+                  ${plages.map(plage => `
+                    <tr>
+                      <td style="padding:10px;font-weight:600;font-size:.8rem;background:#f8f9fa;border:1px solid #e0e0e0;">${plage}</td>
+                      ${jours.map(jour => {
+                        const match = emplois.find(e => e.jour_semaine === jour && e.plage_horaire === plage);
+                        return `<td style="padding:8px;border:1px solid #e0e0e0;min-width:120px;vertical-align:top;min-height:60px;">${match ? `<span style="font-size:.82rem;font-weight:600;">${match.matiere_nom || (match.matieres && match.matieres.nom) || 'Matière inconnue'}</span>` : `<span style="font-size:.72rem;color:var(--text-muted);">—</span>`}</td>`;
+                      }).join('')}
+                    </tr>`).join('')}
+                </tbody>
+              </table>
+            </div>`;
+        }
+
+        function calculateAcademicStatus() {
+            // La moyenne générale n'est affichée que si TOUTES les notes
+            // de TOUTES les matières du niveau sont validées par l'admin.
+            if (state.notes.length === 0) return;
+
+            const niveau = state.studentInfo && state.studentInfo.niveau;
+            const matieresDuNiveau = niveau
+                ? state.matieres.filter(m => Array.isArray(m.niveaux) && m.niveaux.includes(niveau))
+                : state.matieres;
+            const nbMatieresDuNiveau = matieresDuNiveau.length;
+            const nbNotesValidees    = state.notes.length; // backend ne renvoie que les validées
+            const releveComplet      = nbMatieresDuNiveau > 0 && nbNotesValidees === nbMatieresDuNiveau;
+
+            if (!releveComplet) {
+                document.getElementById('overview-average').innerHTML =
+                    `-- <span style="font-size:0.8rem;">/20</span>`;
+                document.getElementById('overview-credits').innerText =
+                    `${nbNotesValidees}/${nbMatieresDuNiveau} matières validées`;
+                return;
+            }
+
+            let totalPoints = 0, totalCredits = 0;
+            state.notes.forEach(n => {
+                const mat = state.matieres.find(m => m.id === n.matiere_id) || { credits: 4 };
+                const note = parseFloat(n.note_valeur);
+                if (!isNaN(note)) {
+                    totalPoints  += note * (mat.credits || 4);
+                    totalCredits += (mat.credits || 4);
+                }
+            });
+            const globalAverage = totalCredits > 0 ? totalPoints / totalCredits : 0;
+            document.getElementById('overview-average').innerHTML =
+                `${globalAverage.toFixed(2)} <span style="font-size:0.8rem;">/20</span>`;
+            document.getElementById('overview-credits').innerText =
+                `${totalCredits} Crédits validés`;
+            renderPerformanceChart(globalAverage);
+        }
+
+        async function checkReleveValidationStatus() {
+            try {
+                const response = await fetchAPI('/etudiant/releve/status').catch(() => ({ ok: false }));
+                const btn        = document.getElementById('btnPrintReleve');
+                const statusText = document.getElementById('releve-status-text');
+
+                if (!response.ok) {
+                    btn.disabled = true;
+                    statusText.innerHTML = `<span style="color:var(--danger-color); font-weight:600;"><i class="fas fa-exclamation-circle"></i> Impossible de vérifier le statut.</span>`;
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.valide) {
+                    btn.disabled = false;
+                    statusText.innerHTML = `<span style="color:var(--success-color); font-weight:600;"><i class="fas fa-check-circle"></i> Relevé complet — validé &amp; signé par la direction.</span>`;
+                } else if (data.releve_complet) {
+                    btn.disabled = true;
+                    statusText.innerHTML = `<span style="color:var(--warning-color); font-weight:600;"><i class="fas fa-hourglass-half"></i> Notes complètes — en attente de validation admin (${data.nb_notes_validees}/${data.nb_matieres_total} validées).</span>`;
+                } else {
+                    const manquantes = data.nb_matieres_total - data.nb_notes_saisies;
+                    btn.disabled = true;
+                    statusText.innerHTML = `<span style="color:var(--danger-color); font-weight:600;"><i class="fas fa-times-circle"></i> Relevé incomplet — ${manquantes} matière(s) sans note (${data.nb_notes_saisies}/${data.nb_matieres_total}).</span>`;
+                }
+            } catch (e) { console.log("Erreur vérification statut."); }
+        }
+
+        function renderNotesTab() {
+            const container = document.getElementById('notesModulesContainer');
+            if (state.notes.length === 0) { container.innerHTML = `<p class="loading">Aucune note disponible.</p>`; return; }
+            const semestres = [...new Set(state.notes.map(n => n.semestre))].sort();
+            
+            container.innerHTML = semestres.map(sem => {
+                const notesSemestre = state.notes.filter(n => n.semestre === sem);
+                let pointsSem = 0, credsSem = 0;
+
+                const tableRows = notesSemestre.map(n => {
+                    const mat = state.matieres.find(m => m.id === n.matiere_id) || { nom: `UE ${n.matiere_id}`, credits: 4 };
+                    const note = parseFloat(n.note_valeur);
+                    if (!isNaN(note)) {
+                        pointsSem += note * (mat.credits || 4);
+                        credsSem += (mat.credits || 4);
+                    }
+                    return `
+                        <tr>
+                            <td><strong>UE-${n.matiere_id}</strong></td>
+                            <td>${mat.nom || 'Matière'}</td>
+                            <td>${mat.credits || '4'}</td>
+                            <td><span class="note-value ${!isNaN(note) && note < 10 ? 'elimines' : ''}">${!isNaN(note) ? note.toFixed(2) : '--'}</span></td>
+                        </tr>`;
+                }).join('');
+
+                return `
+                    <div class="semester-container">
+                        <div class="semester-header">
+                            <h4>Semestre ${sem}</h4>
+                            <span class="semester-average">Moyenne : ${credsSem > 0 ? (pointsSem / credsSem).toFixed(2) : '0.00'} / 20</span>
+                        </div>
+                        <div class="table-responsive-wrapper">
+                            <table>
+                                <thead>
+                                    <tr><th>Code</th><th>Libellé</th><th>Crédits</th><th>Note /20</th></tr>
+                                </thead>
+                                <tbody>${tableRows}</tbody>
+                            </table>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+        
+        function formatDate(dateString) {
+    if (!dateString) return '';
+
+    const date = new Date(dateString);
+
+    return date.toLocaleString('fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+}
+
+        function renderPerformanceChart(studentAvg) {
+            if (state.charts.perf) state.charts.perf.destroy();
+            const ctx = document.getElementById('perfChart');
+            if (!ctx) return;
+            state.charts.perf = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Semestre 1', 'Semestre 2', 'Semestre 3', 'Semestre 4'],
+                    datasets: [
+                        { label: 'Ma Moyenne', data: [studentAvg - 0.5, studentAvg + 0.2, studentAvg, null], borderColor: '#2e86c1', backgroundColor: 'rgba(46, 134, 193, 0.1)', tension: 0.2, fill: true },
+                        { label: 'Moyenne Promo', data: [11.2, 11.8, 12.0, 11.5], borderColor: '#bdc3c7', borderDash: [5, 5], tension: 0, fill: false }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 20 } } }
+            });
+        }
+
+        window.downloadEDT = async function() {
+            const data = state.timetableData;
+            if (!data || !data.emplois) {
+                showToast("Aucun emploi du temps disponible à télécharger.", "error");
+                return;
+            }
+
+            try {
+                showToast("Génération du PDF en cours...", "info");
+
+                const validation = data.validation || {};
+                const emplois = data.emplois || [];
+                const niveau = (state.studentInfo && state.studentInfo.niveau) ? state.studentInfo.niveau : "Filière";
+
+                const jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+                const plages = ["08h - 12h", "14h - 18h"];
+
+                const emploiMap = {};
+                emplois.forEach(e => {
+                    const key = `${e.jour_semaine}|${e.plage_horaire}`;
+                    emploiMap[key] = e.matiere_nom || "Matière inconnue";
+                });
+
+                const dateValidation = validation.valide_le ? new Date(validation.valide_le) : new Date();
+                const dateFormatted = dateValidation.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const timeFormatted = dateValidation.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+                let tableHtml = `
+                    <table style="width:100%;border-collapse:collapse;margin-top:20px;">
+                        <thead>
+                            <tr>
+                                <th style="border:1px solid #ddd;padding:10px;background-color:#1a5276;color:white;text-align:center;">Horaires</th>
+                                ${jours.map(j => `<th style="border:1px solid #ddd;padding:10px;background-color:#1a5276;color:white;text-align:center;">${j}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                plages.forEach(plage => {
+                    tableHtml += `<tr><td style="border:1px solid #ddd;padding:10px;background-color:#f8f9fa;font-weight:bold;text-align:center;">${plage}</td>`;
+                    jours.forEach(jour => {
+                        const matiere = emploiMap[`${jour}|${plage}`];
+                        tableHtml += `<td style="border:1px solid #ddd;padding:10px;text-align:center;">${matiere ? `<strong>${matiere}</strong>` : "—"}</td>`;
+                    });
+                    tableHtml += `</tr>`;
+                });
+                tableHtml += `</tbody></table>`;
+
+                const estSigne = data.validee && validation.est_signe;
+                const signatureHtml = estSigne ? `
+                    <div style="margin-top:10px;">
+                        <p style="color:#27ae60;font-weight:bold;margin:5px 0;">✓ Emploi du temps officiellement validé</p>
+                        <p style="font-size:12px;color:#666;">Validé par : ${validation.valide_par_nom || 'Administrateur'}</p>
+                    </div>` : `
+                    <div style="margin-top:10px;">
+                        <p style="color:#e67e22;font-weight:bold;margin:5px 0;">Non signé</p>
+                    </div>`;
+
+                const pdfContent = `
+                    <div style="text-align:center;margin-bottom:30px;">
+                        <img src="https://futurex.infinityfree.me/unstim.png" style="height:80px;margin-bottom:10px;" crossorigin="anonymous">
+                        <h1 style="color:#1a5276;margin:0;font-size:24px;">UNIVERSITÉ NATIONALE DES SCIENCES,<br>TECHNOLOGIES, INGÉNIERIE ET MATHÉMATIQUES</h1>
+                        <h2 style="color:#2e86c1;margin:5px 0;font-size:20px;">Faculté des Sciences et Techniques - Natitingou</h2>
+                        <hr style="border:2px solid #1a5276;margin:15px 0;">
+                    </div>
+                    <div style="margin-bottom:20px;">
+                        <h3 style="color:#1a5276;border-left:4px solid #f39c12;padding-left:10px;">EMPLOI DU TEMPS</h3>
+                        <div style="display:flex;justify-content:space-between;margin-top:10px;flex-wrap:wrap;">
+                            <div><strong>Filière :</strong> ${niveau}</div>
+                            <div><strong>Période académique :</strong> ${validation.periode || 'Semestre en cours'}</div>
+                            <div><strong>Publié le :</strong> ${dateFormatted} à ${timeFormatted}</div>
+                        </div>
+                    </div>
+                    ${tableHtml}
+                    <div style="margin-top:40px;padding-top:20px;border-top:1px solid #ddd;">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;">
+                            <div>
+                                <p style="margin:5px 0;"><strong>Signature numérique :</strong></p>
+                                ${signatureHtml}
+                            </div>
+                            <div style="text-align:right;">
+                                <p style="font-size:12px;color:#999;">Document généré le ${new Date().toLocaleDateString('fr-FR')}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:20px;text-align:center;font-size:10px;color:#999;">
+                        <hr style="margin:10px 0;">
+                        <p>FAST Natitingou - Université Nationale des Sciences, Technologies, Ingénierie et Mathématiques</p>
+                        <p>BP 123 - Natitingou, Bénin | Tél: +229 01 XX XX XX XX | Email: fast@unstim.bj</p>
+                    </div>
+                `;
+
+                const tempDiv = document.createElement('div');
+                tempDiv.style.position = 'absolute';
+                tempDiv.style.top = '-9999px';
+                tempDiv.style.left = '-9999px';
+                tempDiv.style.width = '800px';
+                tempDiv.style.background = 'white';
+                tempDiv.style.padding = '30px';
+                tempDiv.style.fontFamily = "'Poppins', sans-serif";
+                tempDiv.innerHTML = pdfContent;
+                document.body.appendChild(tempDiv);
+
+                const images = tempDiv.querySelectorAll('img');
+                await Promise.all(Array.from(images).map(img => new Promise(resolve => {
+                    if (img.complete) resolve(); else { img.onload = resolve; img.onerror = resolve; }
+                })));
+
+                const canvas = await html2canvas(tempDiv, {
+                    scale: 2,
+                    backgroundColor: '#ffffff',
+                    useCORS: true,
+                    allowTaint: true,
+                    imageTimeout: 0,
+                    removeContainer: true
+                });
+
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const imgWidth = 210;
+                const pageHeight = 297;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let position = 0;
+
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                let heightLeft = imgHeight - pageHeight;
+                while (heightLeft > 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                const periode = (validation.periode || 'EDT').replace(/\s/g, '_');
+                pdf.save(`Emploi_du_temps_${niveau.replace(/\s/g, '_')}_${periode}.pdf`);
+                document.body.removeChild(tempDiv);
+                showToast("PDF généré avec succès", "success");
+
+            } catch (error) {
+                console.error(error);
+                showToast("Erreur lors de la génération du PDF", "error");
+            }
+        };
+
+        window.printReleve = () => {
+            document.body.classList.add('print-releve');
+            window.print();
+            // Remove class after print dialog closes
+            window.addEventListener('afterprint', function handler() {
+                document.body.classList.remove('print-releve');
+                window.removeEventListener('afterprint', handler);
+            });
+        };
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            await initStudentDashboard();
+            const preloader = document.getElementById("globalPreloader");
+            if(preloader){ preloader.classList.add("fade-out"); }
+        });
+    </script>
+
+    <!-- ═══════════════════════════════════════════════
+         NOTIFICATION SYSTEM SCRIPT (ÉTUDIANT)
+    ═══════════════════════════════════════════════ -->
+    <script>
+    (function() {
+        /* ─────────────────────────────────────────────────────────────────
+         * Système de notifications étudiant — basé sur l'API (Supabase)
+         * Polling toutes les 15 s pour détecter de nouvelles notifications.
+         * Badge = nombre de notifs non lues.
+         * Cliquer sur "Voir" → redirige vers l'onglet Emploi du temps.
+         * ───────────────────────────────────────────────────────────────── */
+
+        let myNiveau    = null;
+        let lastNotifs  = [];    // cache local pour éviter les flashs
+        let pollTimer   = null;
+
+        // ── Helpers API ───────────────────────────────────────────────────
+        function getToken() { return localStorage.getItem('token') || ''; }
+
+        async function apiFetch(url, opts = {}) {
+            const token   = getToken();
+            const apiBase = window._API_BASE || '';
+            return fetch(`${apiBase}${url}`, {
+                ...opts,
+                headers: {
+                    'Content-Type':  'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    ...(opts.headers || {})
+                }
+            });
+        }
+
+        // ── Badge ─────────────────────────────────────────────────────────
+        function updateBadge(unreadCount) {
+            const btn = document.getElementById('notifBtn');
+            if (!btn) return;
+            let badge = document.getElementById('notifBadge');
+            if (unreadCount > 0) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.id        = 'notifBadge';
+                    badge.className = 'notif-badge';
+                    btn.appendChild(badge);
+                }
+                badge.textContent = unreadCount > 9 ? '9+' : String(unreadCount);
+            } else {
+                if (badge) badge.remove();
+            }
+        }
+
+        // ── Formater la date de publication ──────────────────────────────
+        function formatDate(iso) {
+            try {
+                const d = new Date(iso);
+                return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
+                     + ' à '
+                     + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            } catch(e) { return ''; }
+        }
+
+        // ── Rendu du panneau ──────────────────────────────────────────────
+        function renderPanel(notifs) {
+            const container = document.getElementById('notifList');
+            if (!container) return;
+
+            const unread = notifs.filter(n => !n.lue).length;
+            updateBadge(unread);
+
+            if (notifs.length === 0) {
+                container.innerHTML = '<div class="notif-empty"><i class="fas fa-bell-slash"></i><span>Aucune notification</span></div>';
+                return;
+            }
+
+            container.innerHTML = notifs.map((n, i) => `
+                <div class="notif-item ${n.lue ? '' : 'unread'}" data-notif-id="${n.id}">
+                    <div class="notif-icon" style="background:${n.lue ? '#f0f0f0' : '#e8f4fd'};color:${n.lue ? '#999' : '#2563eb'};">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="notif-content">
+                        <p class="notif-text"><strong>${n.titre || 'Notification'}</strong></p>
+                        <p class="notif-text" style="color:#555;margin-top:2px;">${n.message}</p>
+                        <span class="notif-time">${formatDate(n.publiee_le)}</span>
+                        ${n.action ? `
+                        <div class="notif-actions">
+                            <button class="notif-see-btn" onclick="window.NotifSystem.handleAction(${i})">
+                                <i class="fas fa-eye"></i> Voir l'emploi du temps
+                            </button>
+                        </div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ── Charger les notifications depuis l'API ────────────────────────
+        async function loadNotifications() {
+            if (!myNiveau) return;
+            try {
+                const res = await apiFetch('/notifications/etudiant');
+                if (!res.ok) return;
+                const data = await res.json();
+                lastNotifs = data;
+                renderPanel(lastNotifs);
+            } catch(e) {
+                // Silencieux — on réessaiera au prochain polling
+            }
+        }
+
+        // ── Marquer toutes comme lues (quand on ouvre le panneau) ────────
+        async function markAllRead() {
+            try {
+                await apiFetch('/notifications/marquer-toutes-lues', { method: 'POST' });
+                lastNotifs = lastNotifs.map(n => ({ ...n, lue: true }));
+                renderPanel(lastNotifs);
+            } catch(e) {}
+        }
+
+        // ── Action "Voir" → naviguer vers l'onglet Emploi du temps ───────
+        function handleAction(idx) {
+            const notif = lastNotifs[idx];
+            if (!notif) return;
+            // Fermer le panneau
+            const panel = document.getElementById('notifPanel');
+            if (panel) panel.classList.remove('open');
+
+            // Naviguer vers l'onglet timetable SANS déclencher toggleSidebar (bug mobile)
+            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+            const tab = document.querySelector('.menu-item[data-tab="timetable"]');
+            if (tab) tab.classList.add('active');
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            const panel_tt = document.getElementById('panel-timetable');
+            if (panel_tt) panel_tt.classList.add('active');
+
+            // Fermer la sidebar sur mobile si elle est ouverte
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && sidebar.classList.contains('open')) {
+                if (window.toggleSidebar) window.toggleSidebar();
+            }
+
+            // Forcer l'affichage en vue grille immédiatement (sans attendre un clic)
+            if (window.switchTimetableView) {
+                window.switchTimetableView('grid');
+            }
+            // Forcer le rendu complet du contenu (le panel était peut-être caché)
+            if (window.renderTimetableTab) {
+                setTimeout(() => window.renderTimetableTab(), 50);
+            }
+        }
+
+        // ── Événements panel ─────────────────────────────────────────────
+        const btn      = document.getElementById('notifBtn');
+        const panel    = document.getElementById('notifPanel');
+        const clearBtn = document.getElementById('notifClearBtn');
+
+        btn && btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = panel.classList.toggle('open');
+            if (isOpen) markAllRead();
+        });
+
+        document.addEventListener('click', (e) => {
+            if (panel && panel.classList.contains('open')) {
+                if (!document.getElementById('notifWrapper').contains(e.target)) {
+                    panel.classList.remove('open');
+                }
+            }
+        });
+
+        clearBtn && clearBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            // Vider l'affichage immédiatement
+            lastNotifs = [];
+            updateBadge(0);
+            const container = document.getElementById('notifList');
+            if (container) container.innerHTML = '<div class="notif-empty"><i class="fas fa-bell-slash"></i><span>Aucune notification</span></div>';
+            // Supprimer côté serveur (persistant, résiste à la déconnexion)
+            try {
+                await apiFetch('/notifications/supprimer-toutes', { method: 'DELETE' });
+            } catch(e) {}
+        });
+
+        // ── Init avec le niveau étudiant ──────────────────────────────────
+        function initForNiveau(niveau) {
+            myNiveau = niveau;
+            loadNotifications();   // Chargement immédiat
+            // Polling toutes les 15 secondes
+            if (pollTimer) clearInterval(pollTimer);
+            pollTimer = setInterval(loadNotifications, 15000);
+        }
+
+        // Race-condition : niveau déjà connu avant que le script soit prêt
+        if (window._studentNiveau) {
+            initForNiveau(window._studentNiveau);
+        }
+
+        window.NotifSystem = { initForNiveau, handleAction };
+    })();
+    </script>
+</body>
+</html>

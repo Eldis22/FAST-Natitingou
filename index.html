@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>FAST Natitingou - Plateforme de Gestion Académique</title>
+    <style>html,body{background:#f4f6f9!important}</style>
+    
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #1a5276;
+            --secondary-color: #2e86c1;
+            --accent-color: #f39c12;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --light-bg: #f4f6f9;
+            --dark-bg: #1a1a2e;
+            --text-color: #2c3e50;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15);
+            --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.2);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--light-bg) 0%, #e8f0f8 100%);
+            min-height: 100vh;
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 0;
+            box-shadow: none;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .header-scrolled {
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            min-height: 90px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            cursor: pointer;
+        }
+        
+        .logo-img {
+            height: 55px;
+            width: auto;
+            margin-right: 15px;
+            object-fit: contain;
+        }
+
+        .logo-text h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--white);
+            line-height: 1.2;
+        }
+
+        .logo-text p {
+            font-size: 0.85rem;
+            color: #a8d8ea;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        /* Menu Desktop - visible sur ordinateur */
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 35px;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 20px 0;
+            transition: var(--transition);
+            position: relative;
+            font-size: 1rem;
+            white-space: nowrap;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-color);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-link i {
+            margin-right: 8px;
+        }
+
+        /* Menu Hamburger - caché sur desktop */
+        .menu-toggle {
+            display: none;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            padding: 14px 18px;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.02);
+        }
+
+        .menu-toggle i {
+            font-size: 1.8rem;
+            color: var(--white);
+            transition: transform 0.3s ease;
+        }
+
+        .menu-toggle.active i {
+            transform: rotate(90deg);
+        }
+
+        /* Overlay pour le menu mobile */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Menu mobile - glissement du haut vers le bas */
+        .mobile-menu {
+            position: fixed;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            z-index: 1002;
+            transition: top 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 25px 25px 35px;
+        }
+
+        .mobile-menu.open {
+            top: 0;
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .mobile-menu-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-menu-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .mobile-menu-list {
+            list-style: none;
+        }
+
+        .mobile-menu-list li {
+            margin-bottom: 5px;
+        }
+
+        .mobile-menu-list .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-list .nav-link i {
+            width: 25px;
+            font-size: 1.2rem;
+        }
+
+        .mobile-menu-list .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        /* Accordéon Contact dans le menu mobile */
+        .contact-accordion {
+            margin-top: 5px;
+        }
+
+        .contact-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            color: var(--white);
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .contact-header i:first-child {
+            width: 25px;
+        }
+
+        .contact-header span {
+            flex: 1;
+        }
+
+        .contact-header .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .contact-header.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .contact-header:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .contact-links {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding-left: 55px;
+        }
+
+        .contact-links.active {
+            max-height: 120px;
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 0.95rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            margin: 5px 0;
+        }
+
+        .contact-link i {
+            width: 20px;
+            font-size: 1rem;
+        }
+
+        .contact-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+            color: white;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+            padding: 60px 20px 100px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff08" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,208C1248,224,1344,192,1392,176L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.15;
+        }
+
+        .hero-content {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            margin-bottom: 25px;
+        }
+
+        .hero-btn-container {
+            margin-bottom: 30px;
+        }
+
+        .btn-connexion-hero {
+            background: var(--accent-color);
+            color: var(--white);
+            border: none;
+            padding: 14px 40px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-connexion-hero:hover {
+            background: #e67e22;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(243, 156, 18, 0.4);
+        }
+
+        .hero h2 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        /* Section Rôles - avec marge négative pour chevaucher le clip-path */
+        .roles-section {
+            max-width: 1200px;
+            margin: -50px auto 60px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .role-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .role-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+        }
+
+        .role-card.etudiant::before {
+            background: linear-gradient(90deg, #3498db, #2980b9);
+        }
+
+        .role-card.enseignant::before {
+            background: linear-gradient(90deg, #27ae60, #229954);
+        }
+
+        .role-card.admin::before {
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+        }
+
+        .role-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .role-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2.5rem;
+        }
+
+        .role-card.etudiant .role-icon {
+            background: linear-gradient(135deg, #3498db20, #2980b920);
+            color: #3498db;
+        }
+
+        .role-card.enseignant .role-icon {
+            background: linear-gradient(135deg, #27ae6020, #22995420);
+            color: #27ae60;
+        }
+
+        .role-card.admin .role-icon {
+            background: linear-gradient(135deg, #f39c1220, #e67e2220);
+            color: #f39c12;
+        }
+
+        .role-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .role-card p {
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .features-list {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 25px;
+        }
+
+        .features-list li {
+            padding: 8px 0;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .features-list li i {
+            margin-right: 10px;
+            color: var(--success-color);
+        }
+
+        .btn-role {
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        .btn-etudiant {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-enseignant {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-admin {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-role:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Section Fonctionnalités */
+        .features-section {
+            max-width: 1200px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-title h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .section-title p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .feature-item {
+            background: var(--white);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        .feature-item h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .feature-item p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* Modal de Connexion */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+            position: relative;
+            margin: 20px;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .modal-header i {
+            font-size: 3rem;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(46, 134, 193, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(46, 134, 193, 0.3);
+        }
+
+        .btn-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #95a5a6;
+            transition: var(--transition);
+        }
+
+        .btn-close:hover {
+            color: var(--danger-color);
+            transform: rotate(90deg);
+        }
+
+        /* ── Mot de passe oublié ── */
+        .fp-msg {
+            font-size: 0.875rem;
+            border-radius: 8px;
+            padding: 0;
+            margin-bottom: 0;
+            transition: all 0.3s ease;
+        }
+        .fp-msg.error {
+            color: #dc2626;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+        }
+        .fp-msg.success {
+            color: #16a34a;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+        }
+        .fp-msg.info {
+            color: #1d4ed8;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+        }
+        .fp-strength-bar {
+            flex: 1;
+            height: 4px;
+            border-radius: 99px;
+            background: #e5e7eb;
+            transition: background 0.3s;
+        }
+        .fp-rule {
+            list-style: none;
+            transition: color 0.2s;
+        }
+        .fp-rule.valid {
+            color: #16a34a;
+        }
+        .fp-rule.valid i {
+            color: #16a34a;
+        }
+        .fp-rule i {
+            color: #d1d5db;
+        }
+
+.footer {
+    background:
+        radial-gradient(circle at top left, #243b55 0%, var(--dark-bg) 55%);
+    color: var(--white);
+    text-align: center;
+    padding: 45px 20px;
+    margin-top: 60px;
+
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+/* Ligne décorative animée en haut du footer */
+.footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--secondary-color), #f39c12, var(--secondary-color), transparent);
+    opacity: 0;
+    transition: none;
+}
+
+/* Contenu au-dessus des effets */
+.footer > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Textes */
+.footer p {
+    margin: 6px 0;
+    font-size: 0.95rem;
+    opacity: 0.88;
+    line-height: 1.6;
+}
+
+/* Réseaux sociaux */
+.footer .social-links {
+    margin-top: 24px;
+
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+}
+
+/* Icônes sociales */
+.footer .social-links a {
+    text-decoration: none;
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,0.08);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: white;
+    font-size: 1.2rem;
+
+    backdrop-filter: blur(10px);
+
+    transition:
+        transform 0.3s ease,
+        background 0.3s ease,
+        opacity 0.3s ease;
+
+    opacity: 0.9;
+}
+
+/* Hover */
+.footer .social-links a:hover {
+    transform:
+        translateY(-6px)
+        scale(1.08);
+
+    background:
+        rgba(255,255,255,0.18);
+
+    opacity: 1;
+}
+
+/* ── Animation d'entrée du footer ── */
+.footer.footer-reveal::before {
+    animation: footerLineSlide 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    opacity: 1;
+}
+
+.footer.footer-reveal .footer-line-1 {
+    animation: footerItemUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+}
+.footer.footer-reveal .footer-line-2 {
+    animation: footerItemUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+}
+.footer.footer-reveal .footer-line-3 {
+    animation: footerItemUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+}
+.footer.footer-reveal .social-links {
+    animation: footerItemUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.42s both;
+}
+
+@keyframes footerLineSlide {
+    from { left: -100%; opacity: 1; }
+    to   { left: 100%;  opacity: 1; }
+}
+
+@keyframes footerItemUp {
+    from {
+        opacity: 0;
+        transform: translateY(22px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+        /* ==================== */
+        /* RESPONSIVE - TOUS APPAREILS */
+        /* ==================== */
+        
+        /* Tablettes et petits ordinateurs (max 1024px) */
+        @media (max-width: 1024px) {
+            .nav-menu {
+                gap: 25px;
+            }
+            
+            .nav-link {
+                font-size: 0.9rem;
+            }
+            
+            .hero h2 {
+                font-size: 2.4rem;
+            }
+        }
+        
+        /* Mobile et tablettes (max 768px) */
+        @media (max-width: 768px) {
+            /* Masquer le menu desktop */
+            .nav-menu {
+                display: none;
+            }
+            
+            /* Afficher le bouton hamburger */
+            .menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .nav-container {
+                padding: 0 15px;
+                min-height: 75px;
+            }
+            
+            .logo-img {
+                height: 42px;
+                margin-right: 12px;
+            }
+            
+            .logo-text h1 {
+                font-size: 1.2rem;
+            }
+            
+            .logo-text p {
+                font-size: 0.7rem;
+            }
+            
+            .hero {
+                padding: 40px 20px 80px;
+            }
+            
+            .hero h2 {
+                font-size: 1.8rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .hero-btn-container {
+                margin-bottom: 25px;
+            }
+            
+            .btn-connexion-hero {
+                padding: 12px 30px;
+                font-size: 1rem;
+            }
+            
+            .roles-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .section-title h2 {
+                font-size: 1.6rem;
+            }
+            
+            .section-title p {
+                font-size: 0.9rem;
+                padding: 0 15px;
+            }
+            
+            .role-card {
+                padding: 30px 20px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .modal-content {
+                padding: 30px 20px;
+                width: 95%;
+            }
+            
+            .footer p {
+                font-size: 0.75rem;
+            }
+        }
+        
+        /* Très petits mobiles (max 480px) */
+        @media (max-width: 480px) {
+            .hero h2 {
+                font-size: 1.5rem;
+            }
+            
+            .btn-connexion-hero {
+                padding: 10px 24px;
+                font-size: 0.9rem;
+            }
+            
+            .logo-text h1 {
+                font-size: 1rem;
+            }
+            
+            .logo-text p {
+                font-size: 0.6rem;
+            }
+            
+            .logo-img {
+                height: 36px;
+            }
+            
+            .menu-toggle {
+                padding: 12px 14px;
+            }
+            
+            .menu-toggle i {
+                font-size: 1.5rem;
+            }
+            
+            .role-card h3 {
+                font-size: 1.3rem;
+            }
+            
+            .section-title h2 {
+                font-size: 1.4rem;
+            }
+        }
+        
+        /* Grands écrans (min 1400px) */
+        @media (min-width: 1400px) {
+            .nav-container, .roles-section, .features-section {
+                max-width: 1300px;
+            }
+            
+            .hero h2 {
+                font-size: 3.2rem;
+            }
+            
+            .hero p {
+                font-size: 1.3rem;
+            }
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<script>
+    // ─── REDIRECTION IMMÉDIATE avant tout rendu ───────────────────────────────
+    // Masque le body dès le début pour éviter tout flash visuel.
+    // Si une session active est détectée on redirige silencieusement.
+    // Si pas de session, on révèle le body normalement.
+    (function () {
+        var token    = localStorage.getItem('token');
+        var userRole = localStorage.getItem('userRole');
+        if (token && userRole) {
+            // Cacher le body pendant la redirection pour zéro flash
+            document.write('<style>body{display:none!important}</style>');
+            if      (userRole === 'admin')      { window.location.replace('dashboard_admin.html');      }
+            else if (userRole === 'enseignant') { window.location.replace('dashboard_enseignant.html'); }
+            else if (userRole === 'etudiant')   { window.location.replace('dashboard_etudiant.html');   }
+        }
+    })();
+</script>
+<body>
+    <header class="header" id="mainHeader">
+        <nav class="nav-container">
+            <div class="logo-section" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+                <img src="unstim.png" alt="Logo UNSTIM" class="logo-img">
+                <div class="logo-text">
+                    <h1>FAST Natitingou</h1>
+                    <p>Faculté des Sciences et Techniques</p>
+                </div>
+            </div>
+
+            <!-- Menu Desktop - visible sur ordinateur -->
+            <ul class="nav-menu">
+                <li><a href="#" class="nav-link"><i class="fas fa-home"></i> Accueil</a></li>
+                <li><a href="#footer" class="nav-link"
+onclick="
+event.preventDefault();
+document.getElementById('footer').scrollIntoView({ behavior: 'smooth' });
+setTimeout(highlightFooter, 700);
+"><i class="fas fa-info-circle"></i> À propos</a></li>
+                <li><a href="#" class="nav-link" id="desktopContactBtn"><i class="fas fa-envelope"></i> Contact</a></li>
+            </ul>
+
+            <!-- Bouton Hamburger - visible uniquement sur mobile/tablette -->
+            <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Overlay pour le menu mobile -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+    <!-- Menu Mobile - glissement du haut vers le bas -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <button class="mobile-menu-close" id="closeMobileMenu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="mobile-menu-list">
+            <li>
+                <a href="#" class="nav-link" onclick="closeMobileMenuAndOverlay()">
+                    <i class="fas fa-home"></i> Accueil
+                </a>
+            </li>
+            <li>
+                <a href="#footer" class="nav-link"
+onclick="
+event.preventDefault();
+closeMobileMenuAndOverlay();
+
+setTimeout(() => {
+    document.getElementById('footer').scrollIntoView({
+        behavior: 'smooth'
+    });
+
+    setTimeout(highlightFooter, 700);
+}, 300);
+">
+                    <i class="fas fa-info-circle"></i> À propos
+                </a>
+            </li>
+            <li>
+                <div class="contact-accordion">
+                    <div class="contact-header" id="contactAccordion">
+                        <i class="fas fa-envelope"></i>
+                        <span>Contact</span>
+                        <i class="fas fa-chevron-down accordion-icon"></i>
+                    </div>
+                    <div class="contact-links" id="contactLinks">
+                        <a href="https://www.facebook.com/" target="_blank" class="contact-link" onclick="closeMobileMenuAndOverlay()">
+                            <i class="fab fa-facebook-f"></i> Facebook
+                        </a>
+                        <a href="mailto:contact@unstim.bj" class="contact-link" onclick="closeMobileMenuAndOverlay()">
+                            <i class="fas fa-envelope"></i> contact@unstim.bj
+                        </a>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Hero Section avec bouton Connexion intégré -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-btn-container">
+                <button class="btn-connexion-hero" onclick="openLoginModal()">
+                    <i class="fas fa-sign-in-alt"></i> Connexion
+                </button>
+            </div>
+            <h2>Plateforme de Gestion Académique</h2>
+            <p>Simplifiez la gestion des activités académiques avec notre solution numérique complète et intuitive pour les étudiants, enseignants et administrateurs.</p>
+        </div>
+    </section>
+
+    <!-- Section Rôles -->
+    <section class="roles-section">
+        <div class="roles-grid">
+            <!-- Étudiant -->
+            <div class="role-card etudiant">
+                <div class="role-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <h3>Espace Étudiant</h3>
+                <p>Accédez à vos informations académiques en temps réel</p>
+                <ul class="features-list">
+                    <li><i class="fas fa-check-circle"></i> Consultation des notes</li>
+                    <li><i class="fas fa-check-circle"></i> Emploi du temps personnalisé</li>
+                    <li><i class="fas fa-check-circle"></i> Relevé de notes disponible</li>
+                    <li><i class="fas fa-check-circle"></i> Suivi de progression</li>
+                </ul>
+                <a href="#" class="btn-role btn-etudiant" onclick="openLoginModal('etudiant')">
+                    <i class="fas fa-sign-in-alt"></i> Accéder
+                </a>
+            </div>
+
+            <!-- Enseignant -->
+            <div class="role-card enseignant">
+                <div class="role-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <h3>Espace Enseignant</h3>
+                <p>Gérez vos cours et évaluez vos étudiants efficacement</p>
+                <ul class="features-list">
+                    <li><i class="fas fa-check-circle"></i> Saisie et modification des notes</li>
+                    <li><i class="fas fa-check-circle"></i> Liste des étudiants par groupe</li>
+                    <li><i class="fas fa-check-circle"></i> Consultation des emplois du temps</li>
+                    <li><i class="fas fa-check-circle"></i> Export des résultats</li>
+                </ul>
+                <a href="#" class="btn-role btn-enseignant" onclick="openLoginModal('enseignant')">
+                    <i class="fas fa-sign-in-alt"></i> Accéder
+                </a>
+            </div>
+
+            <!-- Administrateur -->
+            <div class="role-card admin">
+                <div class="role-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h3>Espace Administrateur</h3>
+                <p>Supervisez l'ensemble du système académique</p>
+                <ul class="features-list">
+                    <li><i class="fas fa-check-circle"></i> Gestion des utilisateurs</li>
+                    <li><i class="fas fa-check-circle"></i> Gestion des matières et programmes</li>
+                    <li><i class="fas fa-check-circle"></i> Validation des relevés de notes</li>
+                    <li><i class="fas fa-check-circle"></i> Configuration du système</li>
+                </ul>
+                <a href="#" class="btn-role btn-admin" onclick="openLoginModal('admin')">
+                    <i class="fas fa-sign-in-alt"></i> Accéder
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Fonctionnalités -->
+    <section class="features-section">
+        <div class="section-title">
+            <h2>Fonctionnalités Principales</h2>
+            <p>Tout ce dont vous avez besoin pour une gestion académique optimale</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-item">
+                <i class="fas fa-chart-line feature-icon"></i>
+                <h4>Tableaux de Bord</h4>
+                <p>Visualisez vos données avec des graphiques et statistiques personnalisés</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-clock feature-icon"></i>
+                <h4>Emplois du Temps</h4>
+                <p>Consultez et gérez les emplois du temps en temps réel</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-graduation-cap feature-icon"></i>
+                <h4>Gestion des Notes</h4>
+                <p>Saisie, validation et consultation des résultats académiques</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-shield-alt feature-icon"></i>
+                <h4>Sécurité</h4>
+                <p>Authentification sécurisée et gestion des rôles</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-file-pdf feature-icon"></i>
+                <h4>Relevés PDF</h4>
+                <p>Génération automatique des relevés de notes</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-sync feature-icon"></i>
+                <h4>Temps Réel</h4>
+                <p>Mise à jour instantanée des données académiques</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Modal de Connexion -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <button class="btn-close" onclick="closeLoginModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+                <i class="fas fa-user-circle"></i>
+                <h3>Connexion</h3>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="userType">Type d'utilisateur</label>
+                    <select id="userType" name="userType" required>
+                        <option value="">Sélectionnez votre profil</option>
+                        <option value="etudiant">Étudiant</option>
+                        <option value="enseignant">Enseignant</option>
+                        <option value="admin">Administrateur</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="username">Email</label>
+                    <input type="email" id="username" name="username" placeholder="Votre adresse email" required>    
+                </div>
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" placeholder="Votre mot de passe" required>
+                </div>
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+                <div style="text-align: center; margin-top: 16px;">
+                    <a href="#" onclick="openForgotPasswordModal(); return false;" style="
+                        color: var(--secondary-color);
+                        font-size: 0.875rem;
+                        text-decoration: none;
+                        font-weight: 500;
+                        transition: color 0.2s;
+                    " onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--secondary-color)'">
+                        <i class="fas fa-key" style="margin-right: 5px;"></i>Mot de passe oublié ?
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         Modal "Mot de passe oublié" — 3 étapes
+         ══════════════════════════════════════════════════════════════════ -->
+    <div id="forgotModal" class="modal">
+        <div class="modal-content" style="max-width: 460px;">
+            <button class="btn-close" onclick="closeForgotModal()">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <!-- ── Étape 1 : saisie de l'e-mail ── -->
+            <div id="fp-step1">
+                <div class="modal-header">
+                    <i class="fas fa-lock-open"></i>
+                    <h3>Mot de passe oublié</h3>
+                </div>
+                <p style="text-align:center; color:#6b7280; font-size:0.9rem; margin:-10px 0 24px;">
+                    Saisissez l’adresse e-mail associée à votre compte. Si elle est valide, un code de vérification vous sera envoyé.
+                </p>
+                <div class="form-group">
+                    <label for="fp-email">Adresse e-mail</label>
+                    <input type="email" id="fp-email" placeholder="votre@email.com" autocomplete="email">
+                </div>
+                <div id="fp-msg1" class="fp-msg"></div>
+                <button class="btn-submit" id="fp-btn1" onclick="fpSendCode()">
+                    <i class="fas fa-paper-plane"></i> Envoyer le code
+                </button>
+                <div style="text-align:center; margin-top:14px;">
+                    <a href="#" onclick="closeForgotModal(); openLoginModal(); return false;" style="color:var(--secondary-color); font-size:0.85rem; text-decoration:none;">
+                        <i class="fas fa-arrow-left" style="margin-right:4px;"></i>Retour à la connexion
+                    </a>
+                </div>
+            </div>
+
+            <!-- ── Étape 2 : saisie du code ── -->
+            <div id="fp-step2" style="display:none;">
+                <div class="modal-header">
+                    <i class="fas fa-envelope-open-text"></i>
+                    <h3>Vérification</h3>
+                </div>
+                <p style="text-align:center; color:#6b7280; font-size:0.9rem; margin:-10px 0 6px;">
+                    Un code à 6 chiffres a été envoyé à<br>
+                    <strong id="fp-email-display" style="color:var(--primary-color);"></strong>
+                </p>
+                <p style="text-align:center; color:#9ca3af; font-size:0.8rem; margin:0 0 22px;">
+                    <i class="fas fa-clock" style="margin-right:4px;"></i>Code valable 15 minutes
+                </p>
+                <div class="form-group">
+                    <label for="fp-code">Code de vérification</label>
+                    <input type="text" id="fp-code" placeholder="_ _ _ _ _ _"
+                        maxlength="6" inputmode="numeric"
+                        style="text-align:center; font-size:1.5rem; letter-spacing:10px; font-family:monospace; font-weight:700;">
+                </div>
+                <div id="fp-msg2" class="fp-msg"></div>
+                <button class="btn-submit" id="fp-btn2" onclick="fpVerifyCode()">
+                    <i class="fas fa-check-circle"></i> Valider le code
+                </button>
+                <div style="text-align:center; margin-top:14px; display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
+                    <a href="#" onclick="fpGoBack(1); return false;" style="color:#6b7280; font-size:0.85rem; text-decoration:none;">
+                        <i class="fas fa-arrow-left" style="margin-right:4px;"></i>Modifier l'e-mail
+                    </a>
+                    <a href="#" onclick="fpResendCode(); return false;" style="color:var(--secondary-color); font-size:0.85rem; text-decoration:none;">
+                        <i class="fas fa-redo" style="margin-right:4px;"></i>Renvoyer le code
+                    </a>
+                </div>
+            </div>
+
+            <!-- ── Étape 3 : nouveau mot de passe ── -->
+            <div id="fp-step3" style="display:none;">
+                <div class="modal-header">
+                    <i class="fas fa-key"></i>
+                    <h3>Nouveau mot de passe</h3>
+                </div>
+                <p style="text-align:center; color:#6b7280; font-size:0.9rem; margin:-10px 0 22px;">
+                    Choisissez un mot de passe sécurisé pour votre compte.
+                </p>
+
+                <div class="form-group">
+                    <label for="fp-newpass">Nouveau mot de passe</label>
+                    <div style="position:relative;">
+                        <input type="password" id="fp-newpass" placeholder="Votre nouveau mot de passe"
+                            oninput="fpCheckStrength()" style="padding-right:44px;">
+                        <button type="button" onclick="fpTogglePass('fp-newpass', this)"
+                            style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#9ca3af; font-size:1rem; padding:0;">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <!-- Barre de force -->
+                    <div style="margin-top:8px;">
+                        <div style="display:flex; gap:4px; margin-bottom:4px;">
+                            <div id="fp-bar1" class="fp-strength-bar"></div>
+                            <div id="fp-bar2" class="fp-strength-bar"></div>
+                            <div id="fp-bar3" class="fp-strength-bar"></div>
+                        </div>
+                        <p id="fp-strength-label" style="font-size:0.78rem; color:#9ca3af; margin:0;"></p>
+                    </div>
+                    <ul style="font-size:0.8rem; color:#9ca3af; margin:8px 0 0 16px; padding:0; line-height:1.8;">
+                        <li id="fp-rule-len" class="fp-rule"><i class="fas fa-circle-xmark" style="margin-right:5px;"></i>Au moins 6 caractères</li>
+                        <li id="fp-rule-letter" class="fp-rule"><i class="fas fa-circle-xmark" style="margin-right:5px;"></i>Au moins une lettre</li>
+                        <li id="fp-rule-digit" class="fp-rule"><i class="fas fa-circle-xmark" style="margin-right:5px;"></i>Au moins un chiffre</li>
+                    </ul>
+                </div>
+
+                <div class="form-group">
+                    <label for="fp-confirmpass">Confirmer le mot de passe</label>
+                    <div style="position:relative;">
+                        <input type="password" id="fp-confirmpass" placeholder="Répétez le mot de passe" style="padding-right:44px;">
+                        <button type="button" onclick="fpTogglePass('fp-confirmpass', this)"
+                            style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#9ca3af; font-size:1rem; padding:0;">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="fp-msg3" class="fp-msg"></div>
+                <button class="btn-submit" id="fp-btn3" onclick="fpResetPassword()">
+                    <i class="fas fa-shield-alt"></i> Réinitialiser le mot de passe
+                </button>
+            </div>
+
+            <!-- ── Étape 4 : succès ── -->
+            <div id="fp-step4" style="display:none; text-align:center; padding:10px 0;">
+                <div style="margin-bottom:20px;">
+                    <i class="fas fa-check-circle" style="font-size:4rem; color:#22c55e;"></i>
+                </div>
+                <h3 style="color:var(--primary-color); margin-bottom:12px;">Mot de passe modifié !</h3>
+                <p style="color:#6b7280; font-size:0.9rem; line-height:1.6; margin-bottom:28px;">
+                    Votre mot de passe a été réinitialisé avec succès.<br>
+                    Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.
+                </p>
+                <button class="btn-submit" onclick="closeForgotModal(); openLoginModal();">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer avec id pour l'ancrage À propos -->
+    <footer class="footer" id="footer">
+        <p class="footer-line-1">&copy; 2026 FAST Natitingou - Faculté des Sciences et Techniques</p>
+        <p class="footer-line-2">Université Nationale des Sciences, Technologies, Ingénierie et Mathématiques</p>
+        <p class="footer-line-3" style="margin-top: 10px;">
+            <i class="fas fa-map-marker-alt"></i> Natitingou, Bénin | 
+            <i class="fas fa-phone"></i> +229 01 XX XX XX XX
+        </p>
+        <div class="social-links">
+            <a href="https://www.facebook.com/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            <a href="mailto:contact@unstim.bj"><i class="fas fa-envelope"></i></a>
+        </div>
+    </footer>
+    
+    <script>
+        // ─── AUTO-REDIRECT déplacé en haut du document (avant le rendu) ──────
+
+        // Variables pour le menu mobile
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+        const closeMobileMenuBtn = document.getElementById('closeMobileMenu');
+        const contactAccordion = document.getElementById('contactAccordion');
+        const contactLinks = document.getElementById('contactLinks');
+        const desktopContactBtn = document.getElementById('desktopContactBtn');
+
+        function openMobileMenu() {
+            mobileMenu.classList.add('open');
+            mobileMenuOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            if (menuToggle) menuToggle.classList.add('active');
+        }
+
+        function closeMobileMenuAndOverlay() {
+            mobileMenu.classList.remove('open');
+            mobileMenuOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+            if (menuToggle) menuToggle.classList.remove('active');
+            if (contactAccordion && contactAccordion.classList.contains('active')) {
+                contactAccordion.classList.remove('active');
+                contactLinks.classList.remove('active');
+            }
+        }
+
+        // Accordéon Contact dans le menu mobile
+        if (contactAccordion) {
+            contactAccordion.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('active');
+                contactLinks.classList.toggle('active');
+            });
+        }
+
+        // Menu desktop - Contact dropdown propre en haut
+if (desktopContactBtn) {
+    desktopContactBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        let existingModal = document.getElementById('desktopContactModal');
+
+        // Fermer si déjà ouvert
+        if (existingModal) {
+            existingModal.remove();
+            return;
+        }
+
+        // Position du bouton contact
+        const rect = desktopContactBtn.getBoundingClientRect();
+
+        const modal = document.createElement('div');
+        modal.id = 'desktopContactModal';
+
+        modal.style.cssText = `
+            position: fixed;
+            top: ${rect.bottom + 12}px;
+            left: ${rect.left - 160}px;
+            background: white;
+            border-radius: 16px;
+            padding: 18px 20px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+            z-index: 2000;
+            min-width: 230px;
+            border: 1px solid rgba(0,0,0,0.06);
+            animation: fadeSlide 0.5s ease;
+        `;
+
+        modal.innerHTML = `
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:15px;
+            ">
+                <h3 style="
+                    font-size:1rem;
+                    color: var(--primary-color);
+                    font-weight:600;
+                ">
+                    Nous contacter
+                </h3>
+
+                <button id="closeDesktopContact" style="
+                    background:none;
+                    border:none;
+                    cursor:pointer;
+                    font-size:1rem;
+                    color:#7f8c8d;
+                    padding:2px;
+                ">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:10px;">
+
+                <a href="https://www.facebook.com/"
+                   target="_blank"
+                   style="
+                        display:flex;
+                        align-items:center;
+                        gap:10px;
+                        text-decoration:none;
+                        color:#2c3e50;
+                        padding:10px 12px;
+                        border-radius:10px;
+                        transition:0.2s ease;
+                   "
+                   onmouseover="this.style.background='#f4f6f9'"
+                   onmouseout="this.style.background='transparent'"
+                >
+                    <i class="fab fa-facebook-f" style="
+                        color:#1877f2;
+                        font-size:1rem;
+                    "></i>
+
+                    <span>Facebook</span>
+                </a>
+
+                <a href="mailto:contact@unstim.bj"
+                   style="
+                        display:flex;
+                        align-items:center;
+                        gap:10px;
+                        text-decoration:none;
+                        color:#2c3e50;
+                        padding:10px 12px;
+                        border-radius:10px;
+                        transition:0.2s ease;
+                   "
+                   onmouseover="this.style.background='#f4f6f9'"
+                   onmouseout="this.style.background='transparent'"
+                >
+                    <i class="fas fa-envelope" style="
+                        color: var(--primary-color);
+                        font-size:1rem;
+                    "></i>
+
+                    <span>contact@unstim.bj</span>
+                </a>
+
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Bouton croix
+        document
+            .getElementById('closeDesktopContact')
+            .addEventListener('click', () => modal.remove());
+
+        // Fermer en cliquant ailleurs
+        setTimeout(() => {
+            document.addEventListener('click', function closeModal(ev) {
+                if (
+                    !modal.contains(ev.target) &&
+                    ev.target !== desktopContactBtn
+                ) {
+                    modal.remove();
+                    document.removeEventListener('click', closeModal);
+                }
+            });
+        }, 100);
+    });
+}
+        
+
+        // Événements pour le menu mobile
+        if (menuToggle) {
+            menuToggle.addEventListener('click', openMobileMenu);
+        }
+        if (closeMobileMenuBtn) {
+            closeMobileMenuBtn.addEventListener('click', closeMobileMenuAndOverlay);
+        }
+        if (mobileMenuOverlay) {
+            mobileMenuOverlay.addEventListener('click', closeMobileMenuAndOverlay);
+        }
+
+        // Gestion du Modal de Connexion
+        function openLoginModal(role = '') {
+            // ─── Vérification de session active avant d'ouvrir le modal ──────
+            // Si l'utilisateur a déjà une session active, on le redirige vers
+            // son tableau de bord (même si c'est un rôle différent de celui cliqué).
+            const existingToken = localStorage.getItem('token');
+            const existingRole  = localStorage.getItem('userRole');
+            if (existingToken && existingRole) {
+                if      (existingRole === 'admin')      { window.location.replace('dashboard_admin.html');      return; }
+                else if (existingRole === 'enseignant') { window.location.replace('dashboard_enseignant.html'); return; }
+                else if (existingRole === 'etudiant')   { window.location.replace('dashboard_etudiant.html');   return; }
+            }
+            const modal = document.getElementById('loginModal');
+            const userTypeSelect = document.getElementById('userType');
+            
+            modal.classList.add('active');
+            
+            if (role) {
+                userTypeSelect.value = role;
+            }
+            closeMobileMenuAndOverlay();
+        }
+
+        function closeLoginModal() {
+            const modal = document.getElementById('loginModal');
+            modal.classList.remove('active');
+            document.getElementById('loginForm').reset();
+        }
+
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLoginModal();
+            }
+        });
+
+        // Gestion du formulaire de connexion
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const userType = document.getElementById('userType').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!userType || !username || !password) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+            
+            const URL_API = "https://eldis229-fast-nati.hf.space";
+            const formData = new URLSearchParams();
+            formData.append('username', username);
+            formData.append('password', password);
+
+            const submitBtn = this.querySelector('.btn-submit');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...';
+            submitBtn.disabled = true;
+
+            fetch(`${URL_API}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { 
+                        throw new Error(err.detail || 'Identifiant ou mot de passe incorrect'); 
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.role !== userType) {
+                    throw new Error(`Identifiant ou mot de passe incorrect`);
+                }
+                localStorage.setItem('token', data.access_token);
+                localStorage.setItem('userRole', data.role);
+                localStorage.setItem('userName', `${data.prenom} ${data.nom}`);
+
+                if (data.role === 'admin') {
+                    window.location.href = 'dashboard_admin.html';
+                } else if (data.role === 'enseignant') {
+                    window.location.href = 'dashboard_enseignant.html';
+                } else {
+                    window.location.href = 'dashboard_etudiant.html';
+                }
+            })
+            .catch(error => {
+                alert(error.message);
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            });
+        });
+
+        // Animation au scroll
+        const header = document.querySelector('.header');
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 10) {
+                header.classList.add('header-scrolled');
+            } else {
+                header.classList.remove('header-scrolled');
+            }
+        });
+        
+        // Animation du footer
+function highlightFooter() {
+    const footer = document.getElementById('footer');
+    footer.classList.remove('footer-reveal');
+    void footer.offsetWidth;
+    footer.classList.add('footer-reveal');
+}
+
+        console.log('Plateforme FAST Natitingou');
+
+        // ════════════════════════════════════════════════════════════════
+        // MOT DE PASSE OUBLIÉ — logique 3 étapes
+        // ════════════════════════════════════════════════════════════════
+        const URL_API_FP = "https://eldis229-fast-nati.hf.space";
+        let _fpEmail = "";   // mémorisation de l'e-mail entre les étapes
+        let _fpCode  = "";   // mémorisation du code validé
+
+        function openForgotPasswordModal() {
+            closeLoginModal();
+            // Réinitialiser toutes les étapes
+            fpShowStep(1);
+            document.getElementById('fp-email').value = '';
+            document.getElementById('fp-code').value  = '';
+            document.getElementById('fp-newpass').value    = '';
+            document.getElementById('fp-confirmpass').value = '';
+            fpSetMsg(1, ''); fpSetMsg(2, ''); fpSetMsg(3, '');
+            fpResetStrength();
+            document.getElementById('forgotModal').classList.add('active');
+        }
+
+        function closeForgotModal() {
+            document.getElementById('forgotModal').classList.remove('active');
+        }
+
+        document.getElementById('forgotModal').addEventListener('click', function(e) {
+            if (e.target === this) closeForgotModal();
+        });
+
+        function fpShowStep(n) {
+            [1,2,3,4].forEach(i => {
+                const el = document.getElementById('fp-step' + i);
+                if (el) el.style.display = (i === n) ? '' : 'none';
+            });
+        }
+
+        function fpGoBack(step) { fpShowStep(step); }
+
+        function fpSetMsg(step, text, type = '') {
+            const el = document.getElementById('fp-msg' + step);
+            if (!el) return;
+            el.className = 'fp-msg' + (type ? ' ' + type : '');
+            el.innerHTML = text ? '<i class="fas fa-' + (type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle') + '" style="margin-right:6px;"></i>' + text : '';
+        }
+
+        function fpSetLoading(btnId, loading, label) {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.disabled = loading;
+            btn.innerHTML = loading
+                ? '<i class="fas fa-spinner fa-spin"></i> Veuillez patienter…'
+                : label;
+        }
+
+        function fpTogglePass(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const isPass = input.type === 'password';
+            input.type = isPass ? 'text' : 'password';
+            btn.innerHTML = isPass ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+        }
+
+        function fpCheckStrength() {
+            const val = document.getElementById('fp-newpass').value;
+            const hasLen    = val.length >= 6;
+            const hasLetter = /[A-Za-z]/.test(val);
+            const hasDigit  = /[0-9]/.test(val);
+
+            // Règles
+            fpToggleRule('fp-rule-len',    hasLen);
+            fpToggleRule('fp-rule-letter', hasLetter);
+            fpToggleRule('fp-rule-digit',  hasDigit);
+
+            // Barre de force
+            const score = [hasLen, hasLetter, hasDigit].filter(Boolean).length;
+            const colors = ['#ef4444', '#f59e0b', '#22c55e'];
+            const labels = ['Faible', 'Moyen', 'Fort'];
+            for (let i = 1; i <= 3; i++) {
+                const bar = document.getElementById('fp-bar' + i);
+                bar.style.background = i <= score ? colors[score - 1] : '#e5e7eb';
+            }
+            const lbl = document.getElementById('fp-strength-label');
+            lbl.textContent = val.length > 0 ? labels[score - 1] || '' : '';
+            lbl.style.color = val.length > 0 ? colors[score - 1] : '#9ca3af';
+        }
+
+        function fpToggleRule(id, valid) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.className = 'fp-rule' + (valid ? ' valid' : '');
+            el.querySelector('i').className = valid ? 'fas fa-check-circle' : 'fas fa-circle-xmark';
+            el.querySelector('i').style.marginRight = '5px';
+        }
+
+        function fpResetStrength() {
+            [1,2,3].forEach(i => {
+                const bar = document.getElementById('fp-bar' + i);
+                if (bar) bar.style.background = '#e5e7eb';
+            });
+            const lbl = document.getElementById('fp-strength-label');
+            if (lbl) lbl.textContent = '';
+            ['fp-rule-len','fp-rule-letter','fp-rule-digit'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.className = 'fp-rule';
+                    el.querySelector('i').className = 'fas fa-circle-xmark';
+                }
+            });
+        }
+
+        // ── Étape 1 : envoi du code ──
+        async function fpSendCode() {
+            const email = document.getElementById('fp-email').value.trim();
+            if (!email) { fpSetMsg(1, 'Veuillez saisir votre adresse e-mail.', 'error'); return; }
+
+            fpSetLoading('fp-btn1', true, '<i class="fas fa-paper-plane"></i> Envoyer le code');
+            fpSetMsg(1, '');
+            try {
+                const res = await fetch(`${URL_API_FP}/auth/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Erreur serveur');
+                _fpEmail = email;
+                document.getElementById('fp-email-display').textContent = email;
+                fpShowStep(2);
+            } catch (err) {
+                fpSetMsg(1, err.message, 'error');
+            } finally {
+                fpSetLoading('fp-btn1', false, '<i class="fas fa-paper-plane"></i> Envoyer le code');
+            }
+        }
+
+        // ── Renvoi du code ──
+        async function fpResendCode() {
+            fpSetMsg(2, '');
+            fpSetLoading('fp-btn2', true, '<i class="fas fa-check-circle"></i> Valider le code');
+            try {
+                const res = await fetch(`${URL_API_FP}/auth/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: _fpEmail })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Erreur');
+                fpSetMsg(2, 'Un nouveau code a été envoyé.', 'info');
+                document.getElementById('fp-code').value = '';
+            } catch (err) {
+                fpSetMsg(2, err.message, 'error');
+            } finally {
+                fpSetLoading('fp-btn2', false, '<i class="fas fa-check-circle"></i> Valider le code');
+            }
+        }
+
+        // ── Étape 2 : vérification du code ──
+        async function fpVerifyCode() {
+            const code = document.getElementById('fp-code').value.trim();
+            if (code.length !== 6) { fpSetMsg(2, 'Le code doit contenir exactement 6 chiffres.', 'error'); return; }
+
+            fpSetLoading('fp-btn2', true, '<i class="fas fa-check-circle"></i> Valider le code');
+            fpSetMsg(2, '');
+            try {
+                const res = await fetch(`${URL_API_FP}/auth/verify-reset-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: _fpEmail, code })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Code invalide');
+                _fpCode = code;
+                fpShowStep(3);
+            } catch (err) {
+                fpSetMsg(2, err.message, 'error');
+            } finally {
+                fpSetLoading('fp-btn2', false, '<i class="fas fa-check-circle"></i> Valider le code');
+            }
+        }
+
+        // ── Étape 3 : réinitialisation du mot de passe ──
+        async function fpResetPassword() {
+            const newPass     = document.getElementById('fp-newpass').value;
+            const confirmPass = document.getElementById('fp-confirmpass').value;
+
+            if (!newPass) { fpSetMsg(3, 'Veuillez saisir un nouveau mot de passe.', 'error'); return; }
+            if (newPass.length < 6 || !/[A-Za-z]/.test(newPass) || !/[0-9]/.test(newPass)) {
+                fpSetMsg(3, 'Le mot de passe ne respecte pas les règles de sécurité.', 'error'); return;
+            }
+            if (newPass !== confirmPass) { fpSetMsg(3, 'Les deux mots de passe ne correspondent pas.', 'error'); return; }
+
+            fpSetLoading('fp-btn3', true, '<i class="fas fa-shield-alt"></i> Réinitialiser le mot de passe');
+            fpSetMsg(3, '');
+            try {
+                const res = await fetch(`${URL_API_FP}/auth/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: _fpEmail, code: _fpCode, nouveau_mot_de_passe: newPass })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Erreur lors de la réinitialisation');
+                fpShowStep(4);
+            } catch (err) {
+                fpSetMsg(3, err.message, 'error');
+            } finally {
+                fpSetLoading('fp-btn3', false, '<i class="fas fa-shield-alt"></i> Réinitialiser le mot de passe');
+            }
+        }
+    </script>
+</body>
+</html>
+    
